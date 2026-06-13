@@ -45,14 +45,14 @@ ssh-keygen -t rsa -b 2048 -f server -N "" >/dev/null 2>&1
 mv server server.key
 mv server.pub server.pub
 
-wget -q -O /etc/slowdns/sldns-server "https://raw.githubusercontent.com/faizalsalato/sshp/main/slowdns/sldns-server"
-wget -q -O /etc/slowdns/sldns-client "https://raw.githubusercontent.com/faizalsalato/sshp/main/slowdns/sldns-client"
+wget -q -O /etc/slowdns/sldns-server "https://raw.githubusercontent.com/faizalsalato/ssh/main/slowdns/sldns-server"
+wget -q -O /etc/slowdns/sldns-client "https://raw.githubusercontent.com/faizalsalato/ssh/main/slowdns/sldns-client"
 
 
 
 cd
-#wget -q -O /etc/systemd/system/client-sldns.service "https://raw.githubusercontent.com/faizalsalato/sshp/main/slowdns/client-sldns.service"
-#wget -q -O /etc/systemd/system/server-sldns.service "https://raw.githubusercontent.com/faizalsalato/sshp/main/slowdns/server-sldns.service"
+#wget -q -O /etc/systemd/system/client-sldns.service "https://raw.githubusercontent.com/faizalsalato/ssh/main/slowdns/client-sldns.service"
+#wget -q -O /etc/systemd/system/server-sldns.service "https://raw.githubusercontent.com/faizalsalato/ssh/main/slowdns/server-sldns.service"
 cd
 #install client-sldns.service
 cat > /etc/systemd/system/client-sldns.service << END
