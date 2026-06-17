@@ -145,9 +145,9 @@ fi
 
 # Instalar SlowDNS
 if perguntar_etapa "SlowDNS"; then
-    wget https://raw.githubusercontent.com/faizalsalato/ssh/main/SLDNS/install-sldns \
-        && chmod +x install-sldns \
-        && ./install-sldns
+    wget https://raw.githubusercontent.com/leitura/slowdns/main/install \
+        && chmod +x install \
+        && ./install
 fi
 
 # Informações de IP e Portas
