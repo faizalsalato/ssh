@@ -15,7 +15,7 @@ LIGHT='\033[0;37m'
 
 domain=$(cat /etc/xray/domain)
 sldomain=$(cat /root/nsdomain)
-cdndomain=$(cat /root/awscdndomain)
+cdndomain=$(cat /root/domain)
 slkey=$(cat /etc/slowdns/server.pub)
 clear
 read -p "Username : " Login
@@ -57,7 +57,7 @@ expi=`date -d "$masaaktif days" +"%Y-%m-%d"`
 
 cat > /home/vps/public_html/ssh-$Login.txt <<-END
 ====================================================================
-             P R O J E C T  O F  N E V E R M O R E S S H
+            
                        [Freedom Internet]
 ====================================================================
             https://github.com/faizalsalato/ssh
@@ -86,7 +86,7 @@ SSL/TLS: 443
 SSH Websocket SSL/TLS: 443
 SSH Websocket HTTP: 8880
 BadVPN UDPGW: 7100,7200,7300
-Proxy Squid: 3128, 8000 [OFF]
+Proxy Squid: 3128, 8080 [OFF]
 OHP SSH: 8181
 OHP Dropbear: 8282
 OHP OpenVPN: 8383
@@ -139,7 +139,7 @@ echo -e "OVPN Port SSL: 990"
 echo -e "OVPN TCP: http://$IP:89/tcp.ovpn"
 echo -e "OVPN UDP: http://$IP:89/udp.ovpn"
 echo -e "OVPN SSL: http://$IP:89/ssl.ovpn"
-echo -e "SSH Config : http://${domain}:81/ssh-$Login.txt"
+echo -e "SSH Config : http://${domain}:89/ssh-$Login.txt"
 echo -e "=============================="
 echo -e "Payload Websocket SSL/TLS"
 echo -e "=============================="

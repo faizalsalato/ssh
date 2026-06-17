@@ -379,6 +379,12 @@ wget -O dns "https://${ssh_repo}/dns.sh"
 wget -O netf "https://${ssh_repo}/netf.sh"
 wget -O bbr2 "https://${ssh_repo}/bbr2.sh"
 wget -O about "https://${ssh_repo}/about.sh"
+
+wget -O sakaru "https://${ssh_repo}/sakaru"
+wget -O sakaru2 "https://${ssh_repo}/sakaru2"
+wget -O sakaru3 "https://${ssh_repo}/sakaru3"
+
+
 wget -O menu "https://raw.githubusercontent.com/faizalsalato/ssh/main/update/menu.sh"
 wget -O addssh "https://${ssh_repo}/addssh.sh"
 wget -O trialssh "https://${ssh_repo}/trialssh.sh"
@@ -455,6 +461,12 @@ wget -O fssw "https://raw.githubusercontent.com/faizalsalato/sshp/main/fssw/fssw
 
 chmod +x sl-fix
 chmod +x fssw
+
+chmod +x sakaru
+chmod +x sakaru2
+chmod +x sakaru3
+
+
 chmod +x install-sldns
 chmod +x ipsaya
 chmod +x sshovpnmenu

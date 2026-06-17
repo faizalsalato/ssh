@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# 1. Recebendo argumentos
+user=$1
+masaaktif=$2
+
+if [[ -z $user || -z $masaaktif ]]; then
+    echo "Erro: Uso: addvmess [usuario] [dias]"
+    exit 1
+fi
+
+# 2. Verificação se o usuário já existe
+CLIENT_EXISTS=$(grep -w "$user" /etc/xray/config.json | wc -l)
+if [[ ${CLIENT_EXISTS} -ge 1 ]]; then
+    echo "Erro: Usuário $user já existe no config.json"
+    exit 1
+fi
+
+# 3. Configurações e IP
+MYIP=$(curl -sS ipv4.icanhazip.com)
+source /var/lib/crot/ipvps.conf 2>/dev/null
+if [[ -z "$IP" ]]; then
+    domain=$(cat /etc/xray/domain 2>/dev/null)
+else
+    domain=$IP
+fi
+
+tls="$(cat ~/log-install.txt | grep -w "Vmess TLS" | cut -d: -f2|sed 's/ //g')"
+nontls="$(cat ~/log-install.txt | grep -w "Vmess None TLS" | cut -d: -f2|sed 's/ //g')"
+uuid=$(cat /proc/sys/kernel/random/uuid)
+
+hariini=$(date -d "0 days" +"%Y-%m-%d")
+exp=$(date -d "$masaaktif days" +"%Y-%m-%d")
+
+# 4. Inserindo no config.json
+sed -i '/#xray-vmess-tls$/a\### '"$user $exp"'\
+},{"id": "'""$uuid""'","alterId": '"32"',"email": "'""$user""'"' /etc/xray/config.json
+sed -i '/#xray-vmess-nontls$/a\### '"$user $exp"'\
+},{"id": "'""$uuid""'","alterId": '"32"',"email": "'""$user""'"' /etc/xray/config.json
+
+# 5. Criando configs JSON
+cat>/etc/xray/vmess-$user-tls.json<<EOF
+      {
+      "v": "2",
+      "ps": "XRAY_VMESS_${user}",
+      "add": "${domain}",
+      "port": "${tls}",
+      "id": "${uuid}",
+      "aid": "0",
+      "net": "ws",
+      "path": "/vmess",
+      "type": "none",
+      "host": "${domain}",
+      "tls": "tls"
+}
+EOF
+
+cat>/etc/xray/vmess-$user-nontls.json<<EOF
+      {
+      "v": "2",
+      "ps": "XRAY_VMESS_${user}",
+      "add": "${domain}",
+      "port": "${nontls}",
+      "id": "${uuid}",
+      "aid": "0",
+      "net": "ws",
+      "path": "/vmess",
+      "type": "none",
+      "host": "${domain}",
+      "tls": "none"
+}
+EOF
+
+# 6. Gerando Links Vmess
+xrayv2ray1="vmess://$(base64 -w 0 /etc/xray/vmess-$user-tls.json)"
+xrayv2ray2="vmess://$(base64 -w 0 /etc/xray/vmess-$user-nontls.json)"
+
+# Reiniciando serviços
+systemctl restart xray.service
+service cron restart
+
+# 7. Criando arquivo .txt para o cliente
+mkdir -p /home/vps/public_html/
+cat > /home/vps/public_html/vmess-$user.txt <<-END
+====================================================================
+                       [Freedom Internet]
+====================================================================
+Remarks     : ${user}
+IP/Host     : ${MYIP}
+Address     : ${domain}
+Port TLS    : ${tls}
+Port No TLS : ${nontls}
+User ID     : ${uuid}
+Network     : ws
+Created     : $hariini
+Expired     : $exp
+=========================
+Link TLS    : ${xrayv2ray1}
+=========================
+Link No TLS : ${xrayv2ray2}
+=========================
+END
+
+# 8. Saída curta para a API Node.js
+echo "SUCESSO|$user|$uuid|$exp|$MYIP|$domain|$xrayv2ray1|$xrayv2ray2"

@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# 1. Recebendo argumentos via linha de comando PRIMEIRO
+Login=$1
+Pass=$2
+masaaktif=$3
+
+if [[ -z $Login || -z $Pass || -z $masaaktif ]]; then
+    echo "Erro: Uso: addssh [usuario] [senha] [dias]"
+    exit 1
+fi
+
+# 2. Verificação se o usuário já existe
+if id "$Login" &>/dev/null; then
+    echo "Erro: O usuário $Login já existe."
+    exit 1
+fi
+
+# 3. Configurações
+domain=$(cat /etc/xray/domain 2>/dev/null)
+sldomain=$(cat /root/nsdomain 2>/dev/null)
+slkey=$(cat /etc/slowdns/server.pub 2>/dev/null)
+
+# IP
+IP=$(curl -sS ipv4.icanhazip.com)
+
+# Serviços
+ovpn="$(netstat -nlpt | grep -i openvpn | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
+ovpn2="$(netstat -nlpu | grep -i openvpn | grep -i 0.0.0.0 | awk '{print $4}' | cut -d: -f2)"
+
+# 4. Ações
+useradd -e $(date -d "$masaaktif days" +"%Y-%m-%d") -s /bin/false -M "$Login"
+echo -e "$Pass\n$Pass\n" | passwd "$Login" &> /dev/null
+
+hariini=$(date -d "0 days" +"%Y-%m-%d")
+expi=$(date -d "$masaaktif days" +"%Y-%m-%d")
+
+# ==========================================
+# 5. Criando o arquivo .txt (O seu CAT)
+# ==========================================
+mkdir -p /home/vps/public_html/
+cat > /home/vps/public_html/ssh-$Login.txt <<-END
+====================================================================
+                       [Freedom Internet]
+====================================================================
+            https://github.com/faizalsalato/ssh
+====================================================================
+
+═══════════════════════════════════════════════════════
+Premium Server SSH Websocket
+==============================
+Username: $Login
+Password: $Pass
+Created: $hariini
+Expired: $expi
+===========HOST-SSH===========
+IP/Host: $IP
+Domain SSH: $domain
+=========Service-Port=========
+SlowDNS: 443,22,109,143
+OpenSSH: 22
+Dropbear: 443, 109, 143
+SSL/TLS: 443
+SSH Websocket SSL/TLS: 443
+SSH Websocket HTTP: 8880
+BadVPN UDPGW: 7100,7200,7300
+Proxy Squid: 3128, 8080
+OHP SSH: 8181
+OHP Dropbear: 8282
+OHP OpenVPN: 8383
+OVPN Websocket: 2086
+OVPN Port TCP: $ovpn
+OVPN Port UDP: $ovpn2
+OVPN Port SSL: 990
+==============================
+Payload Websocket SSL/TLS
+==============================
+GET wss://bug.com/ HTTP/1.1[crlf]Host: [host][crlf]Upgrade: websocket[crlf][crlf]
+==============================
+Payload Websocket HTTP
+==============================
+GET / HTTP/1.1[crlf]Host: [host][crlf]Upgrade: websocket[crlf][crlf]
+==============================
+END
+
+# O cat cria o arquivo .txt normalmente acima.
+# Esta é a única saída que o Node.js vai ler:
+echo "SUCESSO|$Login|$Pass|$expi|$IP|$domain"
