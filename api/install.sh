@@ -53,14 +53,14 @@ npm install
 # SYSTEMD
 ##########################################
 
-cat >/etc/systemd/system/api-ssh.service <<EOF
+cat >/etc/systemd/system/api-ssl.service <<EOF
 [Unit]
 Description=API SSH PANEL
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/api-ssh
+WorkingDirectory=/opt/api-ssl
 ExecStart=/usr/bin/node /opt/api-ssl/server.js
 Restart=always
 RestartSec=5
@@ -72,8 +72,8 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable api-ssh
-systemctl restart api-ssh
+systemctl enable api-ssl
+systemctl restart api-ssl
 
 ##########################################
 
@@ -83,7 +83,7 @@ echo "API instalada com sucesso!"
 echo "======================================="
 echo
 echo "Status:"
-systemctl --no-pager status api-ssh | head -12
+systemctl --no-pager status api-ssl | head -12
 echo
 echo "Porta utilizada:"
 ss -lntp | grep 3300
