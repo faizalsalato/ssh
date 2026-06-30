@@ -34,6 +34,15 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 ##########################################
+# PM2
+##########################################
+
+if ! command -v pm2 >/dev/null 2>&1; then
+    echo "Instalando PM2..."
+    npm install -g pm2
+fi
+
+##########################################
 # API
 ##########################################
 
@@ -47,33 +56,27 @@ wget -q -O package.json https://raw.githubusercontent.com/faizalsalato/ssh/main/
 
 echo "Instalando módulos..."
 
-npm install
+npm install --omit=dev
 
 ##########################################
-# SYSTEMD
+# PM2
 ##########################################
 
-cat >/etc/systemd/system/api-ssl.service <<EOF
-[Unit]
-Description=API SSH PANEL
-After=network.target
+echo "Parando instância antiga (se existir)..."
 
-[Service]
-Type=simple
-WorkingDirectory=/opt/api-ssl
-ExecStart=/usr/bin/node /opt/api-ssl/server.js
-Restart=always
-RestartSec=5
-User=root
-Environment=NODE_ENV=production
+pm2 delete api-ssl >/dev/null 2>&1
 
-[Install]
-WantedBy=multi-user.target
-EOF
+echo "Iniciando API..."
 
-systemctl daemon-reload
-systemctl enable api-ssl
-systemctl restart api-ssl
+pm2 start server.js \
+    --name api-ssl \
+    --interpreter node
+
+pm2 save
+
+pm2 startup systemd -u root --hp /root >/tmp/pm2_startup
+
+bash -c "$(tail -1 /tmp/pm2_startup)"
 
 ##########################################
 
@@ -82,8 +85,11 @@ echo -e "${GREEN}======================================="
 echo "API instalada com sucesso!"
 echo "======================================="
 echo
-echo "Status:"
-systemctl --no-pager status api-ssl | head -12
+echo "Status do PM2:"
+pm2 status
+echo
+echo "Logs:"
+echo "pm2 logs api-ssl"
 echo
 echo "Porta utilizada:"
 ss -lntp | grep 3300
