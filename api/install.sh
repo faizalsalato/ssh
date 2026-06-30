@@ -42,7 +42,7 @@ cd /opt/api-ssh
 
 echo "Baixando arquivos..."
 
-wget -q -O app.js https://raw.githubusercontent.com/faizalsalato/ssh/main/api/server.js
+wget -q -O server.js https://raw.githubusercontent.com/faizalsalato/ssh/main/api/server.js
 wget -q -O package.json https://raw.githubusercontent.com/faizalsalato/ssh/main/api/package.json
 
 echo "Instalando módulos..."
