@@ -61,7 +61,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/api-ssh
-ExecStart=/usr/bin/node /opt/api-ssh/server.js
+ExecStart=/usr/bin/node /opt/api-ssl/server.js
 Restart=always
 RestartSec=5
 User=root
