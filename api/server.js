@@ -1,96 +1,131 @@
 const express = require('express');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const rateLimit = require('express-rate-limit');
-const app = express();
 
+const app = express();
 app.use(express.json());
+
+// ---------------------------------------------------------------------------
+// Configuração
+// ---------------------------------------------------------------------------
+
+// A API key DEVE vir de variável de ambiente. Nunca deixe chaves no código-fonte.
+// Defina antes de iniciar: export API_KEY="sua_chave_aqui"
+const API_KEY = process.env.API_KEY;
+if (!API_KEY) {
+    console.error('ERRO: defina a variável de ambiente API_KEY antes de iniciar o servidor.');
+    process.exit(1);
+}
 
 // Proteção contra abuso (Max 5 contas a cada 15 min por IP)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 5,
-    message: { erro: "Limite de tentativas excedido" }
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { erro: 'Limite de tentativas excedido' }
 });
 
-const API_KEY = "Sakaruteel2003@";
+// Aplica o rate limiter a TODAS as rotas abaixo (antes elas tinham proteção inconsistente)
+app.use(limiter);
 
-app.post('/ssh', limiter, (req, res) => {
-    // Validação de API Key
-    if (req.headers['x-api-key'] !== API_KEY) {
-        return res.status(401).json({ erro: "Acesso negado" });
+// ---------------------------------------------------------------------------
+// Middlewares de segurança
+// ---------------------------------------------------------------------------
+
+// Validação de API Key, centralizada (evita repetir em cada rota e esquecer alguma)
+function checkApiKey(req, res, next) {
+    const key = req.headers['x-api-key'];
+    if (!key || key !== API_KEY) {
+        return res.status(401).json({ erro: 'Acesso negado' });
+    }
+    next();
+}
+app.use(checkApiKey);
+
+// Whitelist simples para login/senha: letras, números, _ , - e . (3 a 32 caracteres)
+// Ajuste a regex conforme as regras reais de username/senha do seu sistema.
+const SAFE_PATTERN = /^[a-zA-Z0-9_.-]{3,32}$/;
+
+function validarCampo(valor) {
+    return typeof valor === 'string' && SAFE_PATTERN.test(valor);
+}
+
+// Valida e normaliza "dias": deve ser um inteiro positivo dentro de um limite razoável
+function validarDias(dias) {
+    const n = Number(dias);
+    if (!Number.isInteger(n) || n <= 0 || n > 365) return null;
+    return n;
+}
+
+// ---------------------------------------------------------------------------
+// Rotas
+// ---------------------------------------------------------------------------
+
+app.post('/ssh', (req, res) => {
+    const { login, pass, dias } = req.body || {};
+
+    if (!validarCampo(login) || !validarCampo(pass)) {
+        return res.status(400).json({ erro: 'login/pass inválidos' });
+    }
+    const diasValidados = validarDias(dias);
+    if (diasValidados === null) {
+        return res.status(400).json({ erro: 'dias inválido' });
     }
 
-    const { login, pass, dias } = req.body;
-
-    // Executa o script bash
-exec(`lxc exec ubuntu20 -- sakaru ${login} ${pass} 3`, (err, stdout, stderr) => {
-    if (err) return res.status(500).json({ erro: "Falha" });
-
-    // O Node.js pega a linha curta e transforma em JSON
-    const [status, user, senha, expira, ip, dominio] = stdout.trim().split('|');
-    
-    res.json({
-        status,
-        conta: user,
-        senha: senha,
-        expiracao: expira,
-        link_config: `http://${dominio}:89/ssh-${user}.txt`
-    });
-});
-});
-
-
-
-app.post('/criar-vmess', (req, res) => {
-
-	    if (req.headers['x-api-key'] !== API_KEY) {
-        return res.status(401).json({ erro: "Acesso negado" });
-		
-    }
-	    const { login, dias } = req.body;
-
-    // Executa o script addvmess dentro do LXC
-    exec(`lxc exec ubuntu20 -- sakaru2 ${login} 3`, (err, stdout, stderr) => {
+    // execFile evita que o shell interprete caracteres especiais (sem injeção de comando)
+    execFile('sakaru', [login, pass, String(diasValidados)], (err, stdout, stderr) => {
         if (err) {
-            return res.status(500).json({ erro: "Falha ao criar Vmess", detalhes: stderr });
+            console.error('Erro ao executar sakaru:', stderr || err.message);
+            return res.status(500).json({ erro: 'Falha' });
         }
 
-        // Divide a resposta separada por "|"
-        const [status, usuario, uuid, expira, ip, dominio, linkTls, linkNoTls] = stdout.trim().split('|');
+        const partes = stdout.trim().split('|');
+        if (partes.length < 6) {
+            console.error('Saída inesperada do script sakaru:', stdout);
+            return res.status(502).json({ erro: 'Resposta inesperada do script' });
+        }
+        const [status, user, senha, expira, ip, dominio] = partes;
 
-        if (status !== "SUCESSO") {
+        if (status !== 'SUCESSO') {
             return res.status(400).json({ erro: stdout.trim() });
         }
 
-        // Retorna o JSON limpo para o seu painel
         res.json({
             status,
-            usuario,
-            uuid,
+            conta: user,
+            senha,
             expiracao: expira,
-            ip,
-            dominio,
-            link_tls: linkTls,
-            link_notls: linkNoTls
+            link_config: `http://${dominio}:89/ssh-${user}.txt`
         });
     });
 });
 
+app.post('/vmess', (req, res) => {
+    const { login, dias } = req.body || {};
 
-
-app.post('/criar-vless', (req, res) => {
-		    if (req.headers['x-api-key'] !== API_KEY) {
-        return res.status(401).json({ erro: "Acesso negado" });
-		
+    if (!validarCampo(login)) {
+        return res.status(400).json({ erro: 'login inválido' });
     }
-    const { login, dias } = req.body;
+    const diasValidados = validarDias(dias);
+    if (diasValidados === null) {
+        return res.status(400).json({ erro: 'dias inválido' });
+    }
 
-    exec(`lxc exec ubuntu20 -- sakaru3 ${login} 3`, (err, stdout, stderr) => {
-        if (err) return res.status(500).json({ erro: "Falha ao criar Vless" });
+    execFile('sakaru2', [login, String(diasValidados)], (err, stdout, stderr) => {
+        if (err) {
+            console.error('Erro ao executar sakaru2:', stderr || err.message);
+            return res.status(500).json({ erro: 'Falha ao criar Vmess' });
+        }
 
-        const [status, usuario, uuid, expira, ip, dominio, linkTls, linkNoTls] = stdout.trim().split('|');
+        const partes = stdout.trim().split('|');
+        if (partes.length < 8) {
+            console.error('Saída inesperada do script sakaru2:', stdout);
+            return res.status(502).json({ erro: 'Resposta inesperada do script' });
+        }
+        const [status, usuario, uuid, expira, ip, dominio, linkTls, linkNoTls] = partes;
 
-        if (status !== "SUCESSO") {
+        if (status !== 'SUCESSO') {
             return res.status(400).json({ erro: stdout.trim() });
         }
 
@@ -107,6 +142,45 @@ app.post('/criar-vless', (req, res) => {
     });
 });
 
+app.post('/vless', (req, res) => {
+    const { login, dias } = req.body || {};
 
+    if (!validarCampo(login)) {
+        return res.status(400).json({ erro: 'login inválido' });
+    }
+    const diasValidados = validarDias(dias);
+    if (diasValidados === null) {
+        return res.status(400).json({ erro: 'dias inválido' });
+    }
+
+    execFile('sakaru3', [login, String(diasValidados)], (err, stdout, stderr) => {
+        if (err) {
+            console.error('Erro ao executar sakaru3:', stderr || err.message);
+            return res.status(500).json({ erro: 'Falha ao criar Vless' });
+        }
+
+        const partes = stdout.trim().split('|');
+        if (partes.length < 8) {
+            console.error('Saída inesperada do script sakaru3:', stdout);
+            return res.status(502).json({ erro: 'Resposta inesperada do script' });
+        }
+        const [status, usuario, uuid, expira, ip, dominio, linkTls, linkNoTls] = partes;
+
+        if (status !== 'SUCESSO') {
+            return res.status(400).json({ erro: stdout.trim() });
+        }
+
+        res.json({
+            status,
+            usuario,
+            uuid,
+            expiracao: expira,
+            ip,
+            dominio,
+            link_tls: linkTls,
+            link_notls: linkNoTls
+        });
+    });
+});
 
 app.listen(3000, () => console.log('API rodando na porta 3000'));
