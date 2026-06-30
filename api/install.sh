@@ -37,8 +37,8 @@ fi
 # API
 ##########################################
 
-mkdir -p /opt/api-ssh
-cd /opt/api-ssh
+mkdir -p /opt/api-ssl
+cd /opt/api-ssl
 
 echo "Baixando arquivos..."
 
