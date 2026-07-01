@@ -92,6 +92,6 @@ echo "Logs:"
 echo "pm2 logs api-ssl"
 echo
 echo "Porta utilizada:"
-ss -lntp | grep 3300
+ss -lntp | grep 3000
 echo "======================================="
 echo -e "${NC}"
