@@ -1,0 +1,17 @@
+#!/bin/bash
+# sakaru9 - API wrapper for L2TP (non-interactive)
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+set -euo pipefail
+login="${1:-}"; pass="${2:-}"; dias="${3:-}"
+[[ -z "$login" || -z "$pass" || -z "$dias" ]] && { echo "ERRO|USO: sakaru9 <login> <pass> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+# Add to chap-secrets
+echo "$login l2tpd $pass *" >> /etc/ppp/chap-secrets 2>/dev/null || true
+# Add IPsec secret
+echo "$login : PSK \"myvpn\"" >> /etc/ipsec.secrets 2>/dev/null || true
+systemctl restart ipsec 2>/dev/null || true
+systemctl restart xl2tpd 2>/dev/null || true
+echo "SUCESSO|$login|$pass|$exp_date|$IP"

@@ -1,0 +1,19 @@
+#!/bin/bash
+# sakaru5 - API wrapper for Trojan-Go (non-interactive)
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+set -euo pipefail
+login="${1:-}"; dias="${2:-}"
+[[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru5 <login> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
+DOMAIN="${DOMAIN:-de.checker.mobi}"
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+uuid=$(cat /etc/trojan-go/uuid.txt 2>/dev/null || cat /proc/sys/kernel/random/uuid)
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+# Add to trojan-go config
+if [ -f /etc/trojan-go/config.json ]; then
+    sed -i "/\"password\"/a\\    \"$login\"," /etc/trojan-go/config.json 2>/dev/null || true
+    systemctl restart trojan-go 2>/dev/null || true
+fi
+link="trojan-go://$uuid@$DOMAIN:443?type=ws&host=$DOMAIN&path=/trojango&sni=$DOMAIN#TRGO_$login"
+echo "SUCESSO|$login|$uuid|$exp_date|$IP|$DOMAIN|$link"

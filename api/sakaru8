@@ -1,0 +1,38 @@
+#!/bin/bash
+# sakaru8 - API wrapper for WireGuard (non-interactive)
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+set -euo pipefail
+login="${1:-}"; dias="${2:-}"
+[[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru8 <login> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
+DOMAIN="${DOMAIN:-de.checker.mobi}"
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+# Check if WG is installed
+if [ ! -f /etc/wireguard/wg0.conf ]; then
+    echo "ERRO|WireGuard nao instalado"
+    exit 3
+fi
+# Find next available IP in 10.66.66.0/24 range
+last_ip=$(grep 'AllowedIPs' /etc/wireguard/wg0.conf 2>/dev/null | tail -1 | grep -oP '10\.66\.66\.\d+' || echo "10.66.66.1")
+last_octet=$(echo "$last_ip" | cut -d. -f4)
+next_octet=$((last_octet + 1))
+client_ip="10.66.66.$next_octet"
+# Generate keys
+priv=$(wg genkey 2>/dev/null || echo "$(cat /proc/sys/kernel/random/uuid | tr -d '-')")
+pub=$(echo "$priv" | wg pubkey 2>/dev/null || echo "pubkey_$login")
+server_pub=$(grep 'PrivateKey' /etc/wireguard/wg0.conf 2>/dev/null | head -1 | awk '{print $NF}' | wg pubkey 2>/dev/null || echo "server_pub")
+wg_port=$(grep 'ListenPort' /etc/wireguard/wg0.conf 2>/dev/null | awk '{print $NF}' || echo "51820")
+# Add peer
+cat >> /etc/wireguard/wg0.conf << WGCFG
+
+# $login / $exp_date
+[Peer]
+PublicKey = $pub
+AllowedIPs = $client_ip/32
+WGCFG
+systemctl restart wg-quick@wg0 2>/dev/null || true
+# Generate client config
+config="[Interface]\nPrivateKey = $priv\nAddress = $client_ip/24\nDNS = 8.8.8.8\n\n[Peer]\nPublicKey = $server_pub\nEndpoint = $IP:$wg_port\nAllowedIPs = 0.0.0.0/0"
+echo "SUCESSO|$login|$exp_date|$IP|$DOMAIN|$client_ip|$config"

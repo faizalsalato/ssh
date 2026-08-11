@@ -1,0 +1,19 @@
+#!/bin/bash
+# sakaru4 - API wrapper for Trojan account (non-interactive)
+# Usage: sakaru4 <login> <dias>
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+set -euo pipefail
+login="${1:-}"; dias="${2:-}"
+[[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru4 <login> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
+DOMAIN="${DOMAIN:-de.checker.mobi}"
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+tls=$(grep -w "Trojan TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2|sed 's/ //g' || echo "443")
+uuid=$(cat /proc/sys/kernel/random/uuid)
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+# Insert into xray config
+sed -i "/#xray-trojan-tls$/a\\### $login $exp_date\n},{\"password\": \"$uuid\",\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
+systemctl restart xray 2>/dev/null || true
+link="trojan://$uuid@$DOMAIN:$tls?type=ws&security=tls&host=$DOMAIN&path=/trojan&allowInsecure=1&sni=$DOMAIN#TROJAN_$login"
+echo "SUCESSO|$login|$uuid|$exp_date|$IP|$DOMAIN|$link"

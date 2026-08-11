@@ -1,0 +1,14 @@
+#!/bin/bash
+# sakaru11 - API wrapper for SSTP (non-interactive)
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+set -euo pipefail
+login="${1:-}"; pass="${2:-}"; dias="${3:-}"
+[[ -z "$login" || -z "$pass" || -z "$dias" ]] && { echo "ERRO|USO: sakaru11 <login> <pass> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
+DOMAIN="${DOMAIN:-de.checker.mobi}"
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+echo "$login * $pass *" >> /etc/ppp/chap-secrets 2>/dev/null || true
+systemctl restart accel-ppp 2>/dev/null || systemctl restart sstp-server 2>/dev/null || true
+echo "SUCESSO|$login|$pass|$exp_date|$IP|$DOMAIN"
