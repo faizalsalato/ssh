@@ -1,301 +1,229 @@
 #!/bin/bash
-while true; do
-clear
+# ============================================================
+# menu.sh - Painel de Controle VPN (v2 - com validacao + log)
+# ============================================================
+# Digite 'x' para sair | Log: /var/log/vpn-menu.log
+# ============================================================
+
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+LOG="/var/log/vpn-menu.log"
+
 m="\033[0;1;36m"
 y="\033[0;1;37m"
 yy="\033[0;1;32m"
 yl="\033[0;1;33m"
 wh="\033[0m"
+rd="\033[0;1;31m"
 
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$y             Telegram : jembot $wh"
-echo -e "$y           Premium Auto Script By jembot $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo ""
-echo -e "$y SSH & OpenVPN $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 1$y.Create SSH & OpenVPN Account"
-echo -e "$yy 2$y.Generate SSH & OpenVPN Trial Account"
-echo -e "$yy 3$y.Extending SSH & OpenVPN Account Active Life"
-echo -e "$yy 4$y.Check User Login SSH & OpenVPN"
-echo -e "$yy 5$y.Daftar Member SSH & OpenVPN"
-echo -e "$yy 6$y.Delete SSH & OpenVpn Account"
-echo -e "$yy 7$y.Delete User Expired SSH & OpenVPN"
-echo -e "$yy 8$y.Set up Autokill SSH"
-echo -e "$yy 9$y.Displays Users Who Do Multi Login SSH"
-echo -e "$yy 10$y.Restart All Service"
-echo -e ""
-echo -e "$y L2TP $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 11$y.Create Account L2TP"
-echo -e "$yy 12$y.Delete Account L2TP"
-echo -e "$yy 13$y.Extending Account L2TP Active Life"
-echo -e ""
-echo -e "$y PPTP $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 14$y.Create Account PPTP"
-echo -e "$yy 15$y.Delete Account PPTP"
-echo -e "$yy 16$y.Extending Account PPTP Active Life"
-echo -e ""
-echo -e "$y SSTP $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 17$y.Create Account SSTP"
-echo -e "$yy 18$y.Delete Account SSTP"
-echo -e "$yy 19$y.Extending Account SSTP Active Life"
-echo -e "$yy 20$y.Check User Login SSTP"
-echo -e ""
-echo -e "$y WIREGUARD $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 21$y.Create Account Wireguard"
-echo -e "$yy 22$y.Delete Account Wireguard"
-echo -e "$yy 23$y.Extending Account Wireguard Active Life"
-echo -e ""
-echo -e "$y SHADOWSOCKS $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 24$y.Create Account Shadowsocks"
-echo -e "$yy 25$y.Delete Account Shadowsocks"
-echo -e "$yy 26$y.Extending Account Shadowsocks Active Life"
-echo -e "$yy 27$y.Check User Login Shadowsocks"
-echo -e ""
-echo -e "$y SHADOWSOCKSR $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 28$y.Create Account SSR"
-echo -e "$yy 29$y.Delete Account SSR"
-echo -e "$yy 30$y.Extending Account SSR Active Life"
-echo -e "$yy 31$y.Show Other SSR Menu"
-echo -e ""
-echo -e "$y XRAYS / VMESS $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 32$y.Create Account XRAYS Vmess Websocket"
-echo -e "$yy 33$y.Delete Account XRAYS Vmess Websocket"
-echo -e "$yy 34$y.Extending Account XRAYS Vmess Active Life"
-echo -e "$yy 35$y.Check User Login XRAYS Vmess"
-echo -e "$yy 36$y.Renew Certificate XRAYS Account"
-echo -e ""
-echo -e "$y XRAYS / VLESS $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 37$y.Create Account XRAYS Vless Websocket"
-echo -e "$yy 38$y.Delete Account XRAYS Vless Websocket"
-echo -e "$yy 39$y.Extending Account XRAYS Vless Active Life"
-echo -e "$yy 40$y.Check User Login XRAYS Vless"
-echo -e ""
-echo -e "$y XRAYS / TROJAN $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 41$y.Create Account XRAYS Trojan"
-echo -e "$yy 42$y.Delete Account XRAYS Trojan"
-echo -e "$yy 43$y.Extending Account XRAYS Trojan Active Life"
-echo -e "$yy 44$y.Check User Login XRAYS Trojan"
-echo -e ""
-echo -e "$y TROJAN GO $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 45$y.Create Account Trojan Go"
-echo -e "$yy 46$y.Delete Account Trojan Go"
-echo -e "$yy 47$y.Extending Account Trojan Go Active Life"
-echo -e "$yy 48$y.Check User Login Trojan Go"
-echo ""
-echo -e "$y SYSTEM $wh"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e "$yy 49$y.Add Or Change Subdomain Host For VPS"
-echo -e "$yy 50$y.Change Port Of Some Service"
-echo -e "$yy 51$y.Autobackup Data VPS"
-echo -e "$yy 52$y.Backup Data VPS"
-echo -e "$yy 53$y.Restore Data VPS"
-echo -e "$yy 54$y.Webmin Menu"
-echo -e "$yy 55$y.Limit Bandwith Speed Server"
-echo -e "$yy 56$y.Check Usage of VPS Ram"
-echo -e "$yy 57$y.Reboot VPS"
-echo -e "$yy 58$y.Speedtest VPS"
-echo -e "$yy 59$y.Displaying System Information"
-echo -e "$yy 60$y.Info Script Auto Install"
-echo -e "$y-------------------------------------------------------------$wh"
-echo -e ""
-read -p "Select From Options [ 1 - 60 ] : " menu
-echo -e ""
-case $menu in
-1)
-addssh
-;;
-2)
-trialssh
-;;
-3)
-renewssh
-;;
-4)
-cekssh
-;;
-5)
-member
-;;
-6)
-delssh
-;;
-7)
-delexp
-;;
-8)
-autokill
-;;
-9)
-ceklim
-;;
-10)
-restart
-;;
-11)
-addl2tp
-;;
-12)
-dell2tp
-;;
-13)
-renewl2tp
-;;
-14)
-addpptp
-;;
-15)
-delpptp
-;;
-16)
-renewpptp
-;;
-17)
-addsstp
-;;
-18)
-delsstp
-;;
-19)
-renewsstp
-;;
-20)
-ceksstp
-;;
-21)
-addwg
-;;
-22)
-delwg
-;;
-23)
-renewwg
-;;
-24)
-addss
-;;
-25)
-delss
-;;
-26)
-renewss
-;;
-27)
-cekss
-;;
-28)
-addssr
-;;
-29)
-delssr
-;;
-30)
-renewssr
-;;
-31)
-ssr
-;;
-32)
-addvmess
-;;
-33)
-delvmess
-;;
-34)
-renewvmess
-;;
-35)
-cekvmess
-;;
-36)
-certv2ray
-;;
-37)
-addvless
-;;
-38)
-delvless
-;;
-39)
-renewvless
-;;
-40)
-cekvless
-;;
-41)
-addtrojan
-;;
-42)
-deltrojan
-;;
-43)
-renewtrojan
-;;
-44)
-cektrojan
-;;
-45)
-addtrgo
-;;
-46)
-deltrgo
-;;
-47)
-renewtrgo
-;;
-48)
-cektrgo
-;;
-49)
-addhost
-;;
-50)
-changeport
-;;
-51)
-autobackup
-;;
-52)
-backup
-;;
-53)
-restore
-;;
-54)
-wbmn
-;;
-55)
-limitspeed
-;;
-56)
-ram
-;;
-57)
-reboot
-;;
-58)
-speedtest
-;;
-59)
-info
-;;
-60)
-about
-;;
-*)
-clear
-menu
-;;
-esac
+# ── Log ──
+log_action() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] OP=$1 | USER=${USER:-root}" >> "$LOG"
+}
 
+# ── Confirma acoes perigosas ──
+confirm_danger() {
+    local msg="${1:-Tem certeza?}"
+    echo -e "${rd}⚠ $msg${wh}"
+    read -p "Digite 'sim' para confirmar: " resp
+    [[ "$resp" == "sim" ]] && return 0 || return 1
+}
+
+# ── Executa comando com validacao ──
+do_cmd() {
+    local name="$1"
+    local dangerous="${2:-0}"
+    
+    # Check if command exists
+    if ! command -v "$name" &>/dev/null; then
+        echo -e "${rd}✗ Comando '$name' nao encontrado!${wh}"
+        sleep 2
+        return 1
+    fi
+    
+    # Confirmation for dangerous ops
+    if [[ "$dangerous" == "1" ]]; then
+        confirm_danger "Esta operacao e perigosa!" || return 1
+    fi
+    
+    log_action "$name"
+    "$name"
+    local rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo -e "${yl}⚠ Comando '$name' retornou codigo $rc${wh}"
+    fi
+    return $rc
+}
+
+show_menu() {
+    clear
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$y             Telegram : jembot $wh"
+    echo -e "$y           Premium Auto Script By jembot $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "          ${m}v2.0 - Loop + Validacao + Log${wh}"
+    echo ""
+    echo -e "$y SSH & OpenVPN $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 1$y. Criar Conta SSH & OpenVPN"
+    echo -e "$yy 2$y. Gerar Conta Trial SSH"
+    echo -e "$yy 3$y. Renovar Conta SSH & OpenVPN"
+    echo -e "$yy 4$y. Checar Login SSH & OpenVPN"
+    echo -e "$yy 5$y. Listar Membros SSH & OpenVPN"
+    echo -e "$yy 6$y. Deletar Conta SSH & OpenVPN"
+    echo -e "$yy 7$y. Deletar Contas Expiradas SSH"
+    echo -e "$yy 8$y. Configurar Autokill SSH"
+    echo -e "$yy 9$y. Verificar Multi-Login SSH"
+    echo -e "$yy 10$y. Reiniciar Todos Servicos"
+    echo ""
+    echo -e "$y L2TP $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 11$y. Criar L2TP          $yy 12$y. Deletar L2TP          $yy 13$y. Renovar L2TP"
+    echo ""
+    echo -e "$y PPTP $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 14$y. Criar PPTP          $yy 15$y. Deletar PPTP          $yy 16$y. Renovar PPTP"
+    echo ""
+    echo -e "$y SSTP $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 17$y. Criar SSTP          $yy 18$y. Deletar SSTP          $yy 19$y. Renovar SSTP         $yy 20$y. Checar SSTP"
+    echo ""
+    echo -e "$y WIREGUARD $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 21$y. Criar Wireguard     $yy 22$y. Deletar Wireguard     $yy 23$y. Renovar Wireguard"
+    echo ""
+    echo -e "$y SHADOWSOCKS $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 24$y. Criar SS            $yy 25$y. Deletar SS            $yy 26$y. Renovar SS            $yy 27$y. Checar SS"
+    echo ""
+    echo -e "$y SHADOWSOCKSR $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 28$y. Criar SSR           $yy 29$y. Deletar SSR           $yy 30$y. Renovar SSR           $yy 31$y. Menu SSR"
+    echo ""
+    echo -e "$y XRAYS / VMESS $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 32$y. Criar Vmess         $yy 33$y. Deletar Vmess         $yy 34$y. Renovar Vmess         $yy 35$y. Checar Vmess         $yy 36$y. Certificado"
+    echo ""
+    echo -e "$y XRAYS / VLESS $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 37$y. Criar Vless         $yy 38$y. Deletar Vless         $yy 39$y. Renovar Vless         $yy 40$y. Checar Vless"
+    echo ""
+    echo -e "$y XRAYS / TROJAN $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 41$y. Criar Trojan        $yy 42$y. Deletar Trojan        $yy 43$y. Renovar Trojan        $yy 44$y. Checar Trojan"
+    echo ""
+    echo -e "$y TROJAN GO $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 45$y. Criar TrojanGo      $yy 46$y. Deletar TrojanGo      $yy 47$y. Renovar TrojanGo      $yy 48$y. Checar TrojanGo"
+    echo ""
+    echo -e "$y SISTEMA $wh"
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yy 49$y. Add/Change Subdomain    $yy 50$y. Change Port             $yy 51$y. Autobackup"
+    echo -e "$yy 52$y. Backup VPS              $yy 53$y. Restore VPS             $yy 54$y. Webmin Menu"
+    echo -e "$yy 55$y. Limitar Banda           $yy 56$y. Uso de RAM              $yy 57$y. ${rd}Reboot VPS${wh}"
+    echo -e "$yy 58$y. Speedtest               $yy 59$y. Info Sistema            $yy 60$y. Sobre"
+    echo ""
+    echo -e "$y-------------------------------------------------------------$wh"
+    echo -e "$yl  x$y. Sair do Menu                     ${m}l$y. Ver Log de Auditoria${wh}"
+    echo ""
+}
+
+# ── Mapa de comandos ──
+CMD_MAP=(
+    "addssh:0"        # 1
+    "trialssh:0"      # 2
+    "renewssh:0"      # 3
+    "cekssh:0"        # 4
+    "member:0"        # 5
+    "delssh:0"        # 6
+    "delexp:0"        # 7
+    "autokill:0"      # 8
+    "ceklim:0"        # 9
+    "restart:1"       # 10 - perigoso
+    "addl2tp:0"       # 11
+    "dell2tp:0"       # 12
+    "renewl2tp:0"     # 13
+    "addpptp:0"       # 14
+    "delpptp:0"       # 15
+    "renewpptp:0"     # 16
+    "addsstp:0"       # 17
+    "delsstp:0"       # 18
+    "renewsstp:0"     # 19
+    "ceksstp:0"       # 20
+    "addwg:0"         # 21
+    "delwg:0"         # 22
+    "renewwg:0"       # 23
+    "addss:0"         # 24
+    "delss:0"         # 25
+    "renewss:0"       # 26
+    "cekss:0"         # 27
+    "addssr:0"        # 28
+    "delssr:0"        # 29
+    "renewssr:0"      # 30
+    "ssr:0"           # 31
+    "addvmess:0"      # 32
+    "delvmess:0"      # 33
+    "renewvmess:0"    # 34
+    "cekvmess:0"      # 35
+    "certv2ray:0"     # 36
+    "addvless:0"      # 37
+    "delvless:0"      # 38
+    "renewvless:0"    # 39
+    "cekvless:0"      # 40
+    "addtrojan:0"     # 41
+    "deltrojan:0"     # 42
+    "renewtrojan:0"   # 43
+    "cektrojan:0"     # 44
+    "addtrgo:0"       # 45
+    "deltrgo:0"       # 46
+    "renewtrgo:0"     # 47
+    "cektrgo:0"       # 48
+    "addhost:0"       # 49
+    "changeport:0"    # 50
+    "autobackup:0"    # 51
+    "backup:0"        # 52
+    "restore:1"       # 53 - perigoso
+    "wbmn:0"          # 54
+    "limitspeed:0"    # 55
+    "ram:0"           # 56
+    "reboot:1"        # 57 - perigoso
+    "speedtest:0"     # 58
+    "info:0"          # 59
+    "about:0"         # 60
+)
+
+# ── Loop principal ──
+while true; do
+    show_menu
+    read -p "Selecione [1-60], [l] para log, ou [x] para sair: " menu
+    echo ""
+    
+    case $menu in
+        l|L)
+            echo -e "${m}=== Ultimas 20 acoes do menu ===${wh}"
+            tail -20 "$LOG" 2>/dev/null || echo "Nenhum log encontrado."
+            ;;
+        x|X|exit|quit|sair)
+            echo -e "$yy Saindo... Ate logo! $wh"
+            exit 0
+            ;;
+        '')
+            # Empty input - just loop
+            ;;
+        *)
+            # Validate numeric 1-60
+            if [[ "$menu" =~ ^[0-9]+$ ]] && [ "$menu" -ge 1 ] && [ "$menu" -le 60 ]; then
+                idx=$((menu - 1))
+                entry="${CMD_MAP[$idx]}"
+                cmd="${entry%%:*}"
+                dangerous="${entry##*:}"
+                do_cmd "$cmd" "$dangerous"
+            else
+                echo -e "${rd}✗ Opcao invalida! Digite 1-60, 'l' para log, ou 'x' para sair.${wh}"
+                sleep 1
+            fi
+            ;;
+    esac
+    
+    echo ""
+    read -p "Pressione ENTER para voltar ao menu..." dummy
 done

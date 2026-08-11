@@ -1,186 +1,196 @@
+// ===================================================================
+// server.js - API Completa VPN/SSH (12 protocolos)
+// ===================================================================
+
 const express = require('express');
 const { execFile } = require('child_process');
 const rateLimit = require('express-rate-limit');
-
 const app = express();
 app.use(express.json());
 
-// ---------------------------------------------------------------------------
-// Configuração
-// ---------------------------------------------------------------------------
-
-// A API key DEVE vir de variável de ambiente. Nunca deixe chaves no código-fonte.
-// Defina antes de iniciar: export API_KEY="sua_chave_aqui"
 const API_KEY = process.env.API_KEY;
-if (!API_KEY) {
-    console.error('ERRO: defina a variável de ambiente API_KEY antes de iniciar o servidor.');
-    process.exit(1);
-}
+if (!API_KEY) { console.error('ERRO: defina API_KEY'); process.exit(1); }
 
-// Proteção contra abuso (Max 100 contas a cada 15 min por IP)
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { erro: 'Limite de tentativas excedido' }
-});
-
-// Aplica o rate limiter a TODAS as rotas abaixo (antes elas tinham proteção inconsistente)
-app.use(limiter);
-
-// ---------------------------------------------------------------------------
-// Middlewares de segurança
-// ---------------------------------------------------------------------------
-
-// Validação de API Key, centralizada (evita repetir em cada rota e esquecer alguma)
-function checkApiKey(req, res, next) {
-    const key = req.headers['x-api-key'];
-    if (!key || key !== API_KEY) {
-        return res.status(401).json({ erro: 'Acesso negado' });
-    }
+app.use(rateLimit({ windowMs: 15*60*1000, max: 200, message: { erro: 'Limite excedido' } }));
+app.use((req, res, next) => {
+    if (req.headers['x-api-key'] !== API_KEY) return res.status(401).json({ erro: 'Acesso negado' });
     next();
-}
-app.use(checkApiKey);
+});
 
-// Whitelist simples para login/senha: letras, números, _ , - e . (3 a 32 caracteres)
-// Ajuste a regex conforme as regras reais de username/senha do seu sistema.
-const SAFE_PATTERN = /^[a-zA-Z0-9_.-]{3,32}$/;
+const SAFE = /^[a-zA-Z0-9_.-]{3,32}$/;
+function ok(v) { return typeof v === 'string' && SAFE.test(v); }
+function dias(v) { const n = Number(v); return Number.isInteger(n) && n>0 && n<=365 ? n : null; }
 
-function validarCampo(valor) {
-    return typeof valor === 'string' && SAFE_PATTERN.test(valor);
-}
-
-// Valida e normaliza "dias": deve ser um inteiro positivo dentro de um limite razoável
-function validarDias(dias) {
-    const n = Number(dias);
-    if (!Number.isInteger(n) || n <= 0 || n > 365) return null;
-    return n;
+function run(script, args, res, map) {
+    execFile(script, args, { timeout: 30000 }, (err, stdout, stderr) => {
+        if (err) return res.status(500).json({ erro: 'Falha: ' + (stderr||err.message) });
+        const p = stdout.trim().split('|');
+        if (p[0] === 'ERRO') return res.status(400).json({ erro: p[1] });
+        if (p[0] !== 'SUCESSO') return res.status(502).json({ erro: stdout.trim() });
+        res.json(map(p));
+    });
 }
 
-// ---------------------------------------------------------------------------
-// Rotas
-// ---------------------------------------------------------------------------
-
+// ── SSH ──
 app.post('/ssh', (req, res) => {
-    const { login, pass, dias } = req.body || {};
+    const { login, pass, dias: d } = req.body||{};
+    if (!ok(login)||!ok(pass)) return res.status(400).json({ erro: 'login/pass invalidos' });
+    const dd = dias(d); if (!dd) return res.status(400).json({ erro: 'dias (1-365)' });
+    run('sakaru', [login,pass,String(dd)], res, p => ({ status:p[0], conta:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }));
+});
 
-    if (!validarCampo(login) || !validarCampo(pass)) {
-        return res.status(400).json({ erro: 'login/pass inválidos' });
-    }
-    const diasValidados = validarDias(dias);
-    if (diasValidados === null) {
-        return res.status(400).json({ erro: 'dias inválido' });
-    }
+app.delete('/ssh/:login', (req, res) => {
+    const { login } = req.params;
+    if (!ok(login)) return res.status(400).json({ erro: 'login invalido' });
+    execFile('userdel', ['-rf', login], (err, stdout, stderr) => {
+        if (err && !(stderr||'').includes('does not exist')) return res.status(500).json({ erro: 'Falha ao deletar' });
+        res.json({ status: 'SUCESSO', conta: login, mensagem: 'Deletado' });
+    });
+});
 
-    // execFile evita que o shell interprete caracteres especiais (sem injeção de comando)
-    execFile('sakaru', [login, pass, String(diasValidados)], (err, stdout, stderr) => {
-        if (err) {
-            console.error('Erro ao executar sakaru:', stderr || err.message);
-            return res.status(500).json({ erro: 'Falha' });
-        }
+app.post('/ssh/:login/renew', (req, res) => {
+    const { login } = req.params;
+    const d = dias((req.body||{}).dias);
+    if (!ok(login)||!d) return res.status(400).json({ erro: 'login/dias invalidos' });
+    const exp = new Date(Date.now()+d*86400000).toISOString().slice(0,10);
+    execFile('chage', ['-E', exp, login], (err) => {
+        if (err) return res.status(500).json({ erro: 'Falha' });
+        res.json({ status: 'SUCESSO', conta: login, nova_expiracao: exp });
+    });
+});
 
-        const partes = stdout.trim().split('|');
-        if (partes.length < 6) {
-            console.error('Saída inesperada do script sakaru:', stdout);
-            return res.status(502).json({ erro: 'Resposta inesperada do script' });
-        }
-        const [status, user, senha, expira, ip, dominio] = partes;
+app.get('/ssh', (req, res) => {
+    execFile('awk', ['-F:', '$3>=1000{print $1}', '/etc/passwd'], (err, out) => {
+        res.json(out.trim().split('\n').filter(Boolean).map(u => ({ usuario: u })));
+    });
+});
 
-        if (status !== 'SUCESSO') {
-            return res.status(400).json({ erro: stdout.trim() });
-        }
-
-        res.json({
-            status,
-            conta: user,
-            senha,
-            expiracao: expira,
-            link_config: `http://${dominio}:89/ssh-${user}.txt`
+app.get('/ssh/:login', (req, res) => {
+    const { login } = req.params;
+    if (!ok(login)) return res.status(400).json({ erro: 'login invalido' });
+    execFile('id', [login], (err) => {
+        if (err) return res.json({ usuario: login, existe: false });
+        execFile('chage', ['-l', login], (e2, out) => {
+            const m = out.match(/Account expires.*: (.*)/);
+            res.json({ usuario: login, existe: true, expiracao: m?m[1].trim():'never' });
         });
     });
 });
 
+// ── Vmess ──
 app.post('/vmess', (req, res) => {
-    const { login, dias } = req.body || {};
+    const { login, dias: d } = req.body||{};
+    if (!ok(login)) return res.status(400).json({ erro: 'login invalido' });
+    const dd = dias(d); if (!dd) return res.status(400).json({ erro: 'dias (1-365)' });
+    run('sakaru2', [login,String(dd)], res, p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link_tls:p[6], link_notls:p[7] }));
+});
 
-    if (!validarCampo(login)) {
-        return res.status(400).json({ erro: 'login inválido' });
-    }
-    const diasValidados = validarDias(dias);
-    if (diasValidados === null) {
-        return res.status(400).json({ erro: 'dias inválido' });
-    }
+app.delete('/vmess/:login', (req, res) => {
+    const { login } = req.params;
+    execFile('sed', ['-i', '/### '+login+'/d', '/etc/xray/config.json'], () => {
+        execFile('systemctl', ['restart', 'xray'], () => {});
+        res.json({ status: 'SUCESSO', usuario: login, mensagem: 'Deletado' });
+    });
+});
 
-    execFile('sakaru2', [login, String(diasValidados)], (err, stdout, stderr) => {
-        if (err) {
-            console.error('Erro ao executar sakaru2:', stderr || err.message);
-            return res.status(500).json({ erro: 'Falha ao criar Vmess' });
-        }
+app.post('/vmess/:login/renew', (req, res) => {
+    const { login } = req.params;
+    const d = dias((req.body||{}).dias);
+    if (!ok(login)||!d) return res.status(400).json({ erro: 'login/dias invalidos' });
+    const exp = new Date(Date.now()+d*86400000).toISOString().slice(0,10);
+    execFile('sed', ['-i', 's/### '+login+' .*/### '+login+' '+exp+'/', '/etc/xray/config.json'], (err) => {
+        execFile('systemctl', ['restart', 'xray'], () => {});
+        res.json({ status: 'SUCESSO', usuario: login, nova_expiracao: exp });
+    });
+});
 
-        const partes = stdout.trim().split('|');
-        if (partes.length < 8) {
-            console.error('Saída inesperada do script sakaru2:', stdout);
-            return res.status(502).json({ erro: 'Resposta inesperada do script' });
-        }
-        const [status, usuario, uuid, expira, ip, dominio, linkTls, linkNoTls] = partes;
+app.get('/vmess', (req, res) => {
+    execFile('grep', ['-E', '^### ', '/etc/xray/config.json'], (err, out) => {
+        const users = (out||'').trim().split('\n').filter(Boolean).map(l => {
+            const p = l.replace('### ','').split(' ');
+            return { usuario: p[0], expiracao: p[1]||'?' };
+        });
+        res.json(users);
+    });
+});
 
-        if (status !== 'SUCESSO') {
-            return res.status(400).json({ erro: stdout.trim() });
-        }
+app.get('/vmess/:login', (req, res) => {
+    execFile('grep', ['-w', req.params.login, '/etc/xray/config.json'], (err, out) => {
+        res.json({ usuario: req.params.login, existe: !!out.trim() });
+    });
+});
 
-        res.json({
-            status,
-            usuario,
-            uuid,
-            expiracao: expira,
-            ip,
-            dominio,
-            link_tls: linkTls,
-            link_notls: linkNoTls
+// ── Vless ──
+const vlessRoutes = (app) => {
+    app.post('/vless', (req, res) => {
+        const { login, dias: d } = req.body||{};
+        if (!ok(login)) return res.status(400).json({ erro: 'login invalido' });
+        const dd = dias(d); if (!dd) return res.status(400).json({ erro: 'dias (1-365)' });
+        run('sakaru3', [login,String(dd)], res, p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link_tls:p[6], link_notls:p[7] }));
+    });
+    app.delete('/vless/:login', (req, res) => {
+        execFile('sed', ['-i', '/#### '+req.params.login+'/d', '/etc/xray/config.json'], () => {
+            execFile('systemctl', ['restart', 'xray'], () => {});
+            res.json({ status: 'SUCESSO', usuario: req.params.login, mensagem: 'Deletado' });
+        });
+    });
+    app.post('/vless/:login/renew', (req, res) => {
+        const d = dias((req.body||{}).dias);
+        if (!ok(req.params.login)||!d) return res.status(400).json({ erro: 'login/dias invalidos' });
+        const exp = new Date(Date.now()+d*86400000).toISOString().slice(0,10);
+        execFile('sed', ['-i', 's/#### '+req.params.login+' .*/#### '+req.params.login+' '+exp+'/', '/etc/xray/config.json'], (err) => {
+            execFile('systemctl', ['restart', 'xray'], () => {});
+            res.json({ status: 'SUCESSO', usuario: req.params.login, nova_expiracao: exp });
+        });
+    });
+    app.get('/vless', (req, res) => {
+        execFile('grep', ['-E', '^#### ', '/etc/xray/config.json'], (err, out) => {
+            const users = (out||'').trim().split('\n').filter(Boolean).map(l => {
+                const p = l.replace('#### ','').split(' ');
+                return { usuario: p[0], expiracao: p[1]||'?' };
+            });
+            res.json(users);
+        });
+    });
+};
+vlessRoutes(app);
+
+// ── Outros protocolos (Trojan, TrGo, SS, SSR, WG, L2TP, PPTP, SSTP, gRPC) ──
+['trojan','trgo','ss','ssr','wg','l2tp','pptp','sstp','grpc'].forEach(proto => {
+    app.post('/'+proto, (req, res) => {
+        const { login, pass, dias: d } = req.body||{};
+        if (!ok(login)) return res.status(400).json({ erro: 'login invalido' });
+        const dd = dias(d); if (!dd) return res.status(400).json({ erro: 'dias (1-365)' });
+        const args = pass&&ok(pass) ? [login,pass,String(dd)] : [login,String(dd)];
+        run('add'+proto, args, res, p => ({ status:p[0], usuario:login }));
+    });
+    app.delete('/'+proto+'/:login', (req, res) => {
+        execFile('del'+proto, [req.params.login], { timeout: 10000 }, () => {
+            res.json({ status: 'SUCESSO', usuario: req.params.login, mensagem: proto+' deletado' });
+        });
+    });
+    app.post('/'+proto+'/:login/renew', (req, res) => {
+        const d = dias((req.body||{}).dias);
+        if (!ok(req.params.login)||!d) return res.status(400).json({ erro: 'login/dias invalidos' });
+        execFile('renew'+proto, [req.params.login,String(d)], { timeout: 10000 }, () => {
+            res.json({ status: 'SUCESSO', usuario: req.params.login, dias: d });
+        });
+    });
+    app.get('/'+proto, (req, res) => {
+        execFile('cek'+proto, [], { timeout: 10000 }, (err, out) => {
+            res.json({ protocolo: proto, dados: (out||'').trim() });
         });
     });
 });
 
-app.post('/vless', (req, res) => {
-    const { login, dias } = req.body || {};
+// ── Health / Docs ──
+app.get('/health', (req, res) => res.json({ status:'ok', ts:new Date().toISOString() }));
+app.get('/', (req, res) => res.json({
+    api: 'VPN API v2.0',
+    protocolos: ['ssh','vmess','vless','trojan','trgo','ss','ssr','wg','l2tp','pptp','sstp','grpc'],
+    operacoes: ['POST/:proto','DELETE/:proto/:login','POST/:proto/:login/renew','GET/:proto','GET/:proto/:login'],
+    auth: 'Header: x-api-key'
+}));
 
-    if (!validarCampo(login)) {
-        return res.status(400).json({ erro: 'login inválido' });
-    }
-    const diasValidados = validarDias(dias);
-    if (diasValidados === null) {
-        return res.status(400).json({ erro: 'dias inválido' });
-    }
-
-    execFile('sakaru3', [login, String(diasValidados)], (err, stdout, stderr) => {
-        if (err) {
-            console.error('Erro ao executar sakaru3:', stderr || err.message);
-            return res.status(500).json({ erro: 'Falha ao criar Vless' });
-        }
-
-        const partes = stdout.trim().split('|');
-        if (partes.length < 8) {
-            console.error('Saída inesperada do script sakaru3:', stdout);
-            return res.status(502).json({ erro: 'Resposta inesperada do script' });
-        }
-        const [status, usuario, uuid, expira, ip, dominio, linkTls, linkNoTls] = partes;
-
-        if (status !== 'SUCESSO') {
-            return res.status(400).json({ erro: stdout.trim() });
-        }
-
-        res.json({
-            status,
-            usuario,
-            uuid,
-            expiracao: expira,
-            ip,
-            dominio,
-            link_tls: linkTls,
-            link_notls: linkNoTls
-        });
-    });
-});
-
-app.listen(3000, () => console.log('API rodando na porta 3000'));
+const PORT = process.env.API_PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => console.log('[API] Porta '+PORT+' | 12 protocolos | OK'));
