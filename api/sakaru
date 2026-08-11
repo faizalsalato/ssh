@@ -1,0 +1,48 @@
+#!/bin/bash
+# sakaru - API wrapper for SSH account creation (non-interactive)
+# Usage: sakaru <login> <pass> <dias>
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
+set -euo pipefail
+
+login="${1:-}"
+pass="${2:-}"
+dias="${3:-}"
+
+if [[ -z "$login" || -z "$pass" || -z "$dias" ]]; then
+    echo "ERRO|USO: sakaru <login> <pass> <dias>"
+    exit 1
+fi
+
+if [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]]; then
+    echo "ERRO|login invalido (3-32 chars)"
+    exit 2
+fi
+if [[ ! "$pass" =~ ^[a-zA-Z0-9_.-@#$%]{3,32}$ ]]; then
+    echo "ERRO|senha invalida"
+    exit 2
+fi
+if ! [[ "$dias" =~ ^[0-9]+$ ]] || [ "$dias" -lt 1 ] || [ "$dias" -gt 365 ]; then
+    echo "ERRO|dias deve ser entre 1-365"
+    exit 2
+fi
+
+DOMAIN="${DOMAIN:-A}"
+
+# Get IP (single call)
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo "82.165.182.12")
+
+# Check if user already exists
+if id "$login" &>/dev/null; then
+    echo "ERRO|usuario '$login' ja existe"
+    exit 3
+fi
+
+# Create system user
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+useradd -e "$exp_date" -s /bin/false -M "$login"
+echo -e "$pass\n$pass\n" | passwd "$login" &>/dev/null
+
+# Restart websocket services
+systemctl restart ws-tls ws-nontls 2>/dev/null || true
+
+echo "SUCESSO|$login|$pass|$exp_date|$IP|$DOMAIN"

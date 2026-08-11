@@ -1,0 +1,54 @@
+#!/bin/bash
+# sakaru2 - API wrapper for Vmess account creation (non-interactive)
+# Usage: sakaru2 <login> <dias>
+# Output: SUCESSO|usuario|uuid|expira|ip|dominio|linkTls|linkNoTls
+set -euo pipefail
+
+login="${1:-}"
+dias="${2:-}"
+
+if [[ -z "$login" || -z "$dias" ]]; then
+    echo "USO: sakaru2 <login> <dias>"
+    exit 1
+fi
+
+if [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]]; then
+    echo "ERRO: login invalido"
+    exit 2
+fi
+if ! [[ "$dias" =~ ^[0-9]+$ ]] || [ "$dias" -lt 1 ] || [ "$dias" -gt 365 ]; then
+    echo "ERRO: dias deve ser entre 1-365"
+    exit 2
+fi
+
+domain="${DOMAIN:-$(cat /etc/xray/domain 2>/dev/null || hostname -f 2>/dev/null || echo 'vps')}"
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo '127.0.0.1')
+
+# Check if user exists in xray config
+if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then
+    echo "ERRO: usuario '$login' ja existe no Xray"
+    exit 3
+fi
+
+# Read ports from install log
+tls=$(grep -w "Vmess TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "443")
+nontls=$(grep -w "Vmess None TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "80")
+
+uuid=$(cat /proc/sys/kernel/random/uuid)
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+
+# Insert into xray config
+sed -i "/#xray-vmess-tls$/a\### $login $exp_date\n},{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
+sed -i "/#xray-vmess-nontls$/a\### $login $exp_date\n},{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
+
+# Generate Vmess links
+vmess_tls_json='{"v":"2","ps":"XRAY_VMESS_'"$login"'","add":"'"$domain"'","port":"'"$tls"'","id":"'"$uuid"'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'"$domain"'","tls":"tls"}'
+vmess_notls_json='{"v":"2","ps":"XRAY_VMESS_'"$login"'","add":"'"$domain"'","port":"'"$nontls"'","id":"'"$uuid"'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'"$domain"'","tls":"none"}'
+
+link_tls="vmess://$(echo -n "$vmess_tls_json" | base64 -w 0)"
+link_notls="vmess://$(echo -n "$vmess_notls_json" | base64 -w 0)"
+
+# Restart xray
+systemctl restart xray.service 2>/dev/null || true
+
+echo "SUCESSO|$login|$uuid|$exp_date|$IP|$domain|$link_tls|$link_notls"

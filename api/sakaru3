@@ -1,0 +1,46 @@
+#!/bin/bash
+# sakaru3 - API wrapper for Vless account creation (non-interactive)
+# Usage: sakaru3 <login> <dias>
+# Output: SUCESSO|usuario|uuid|expira|ip|dominio|linkTls|linkNoTls
+set -euo pipefail
+
+login="${1:-}"
+dias="${2:-}"
+
+if [[ -z "$login" || -z "$dias" ]]; then
+    echo "USO: sakaru3 <login> <dias>"
+    exit 1
+fi
+
+if [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]]; then
+    echo "ERRO: login invalido"
+    exit 2
+fi
+if ! [[ "$dias" =~ ^[0-9]+$ ]] || [ "$dias" -lt 1 ] || [ "$dias" -gt 365 ]; then
+    echo "ERRO: dias deve ser entre 1-365"
+    exit 2
+fi
+
+domain="${DOMAIN:-$(cat /etc/xray/domain 2>/dev/null || hostname -f 2>/dev/null || echo 'vps')}"
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo '127.0.0.1')
+
+if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then
+    echo "ERRO: usuario '$login' ja existe no Xray"
+    exit 3
+fi
+
+tls=$(grep -w "Vless TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "443")
+nontls=$(grep -w "Vless None TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "80")
+
+uuid=$(cat /proc/sys/kernel/random/uuid)
+exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+
+sed -i "/#xray-vless-tls$/a\\#### $login $exp_date\n},{\"id\": \"$uuid\",\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
+sed -i "/#xray-vless-nontls$/a\\#### $login $exp_date\n},{\"id\": \"$uuid\",\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
+
+link_tls="vless://${uuid}@${domain}:${tls}?type=ws&encryption=none&security=tls&host=${domain}&path=/vless&allowInsecure=1&sni=${domain}#XRAY_VLESS_${login}"
+link_notls="vless://${uuid}@${domain}:${nontls}?type=ws&encryption=none&security=none&host=${domain}&path=/vless#XRAY_VLESS_${login}"
+
+systemctl restart xray.service 2>/dev/null || true
+
+echo "SUCESSO|$login|$uuid|$exp_date|$IP|$domain|$link_tls|$link_notls"

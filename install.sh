@@ -623,6 +623,17 @@ main() {
         save_local "https://${SSH_REPO}/addssh.sh"     "/root/vpn-scripts" "addssh.sh"
         save_local "https://${SSH_REPO}/delssh.sh"     "/root/vpn-scripts" "delssh.sh"
         save_local "https://${SSH_REPO}/renewssh.sh"   "/root/vpn-scripts" "renewssh.sh"
+
+        log_info "Salvando API e scripts sakaru..."
+        mkdir -p /usr/bin 2>/dev/null
+        save_local "https://${API_REPO}/server.js"     "/opt/api-ssl"      "server.js"
+        save_local "https://${SSH_REPO}/server.js"     "/root/ssh"         "server.js"
+
+        # Scripts sakaru (wrappers nao-interativos para API)
+        for script in sakaru sakaru2 sakaru3; do
+            save_local "https://${API_REPO}/${script}"   "/usr/bin"  "${script}"
+            chmod +x "/usr/bin/${script}" 2>/dev/null || true
+        done
     else
         log_info "[DRY-RUN] Salvaria scripts em /root/vpn-scripts"
     fi
