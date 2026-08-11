@@ -1,4 +1,6 @@
 #!/bin/bash
+# Loop do menu - retorna ao menu apos cada acao
+while true; do
 clear
 m="\033[0;1;36m"
 y="\033[0;1;37m"
@@ -44,10 +46,12 @@ menu
 ;;
 8)
 clear
-exit
+break
 ;;
 *)
 clear
 menu
 ;;
 esac
+
+done

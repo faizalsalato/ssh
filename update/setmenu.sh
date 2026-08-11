@@ -1,5 +1,9 @@
 #!/bin/bash
+# Loop do menu - retorna ao menu apos cada acao
+while true; do
 #!/bin/bash
+# Loop do menu - retorna ao menu apos cada acao
+while true; do
 clear
 m="\033[0;1;36m"
 y="\033[0;1;37m"
@@ -100,3 +104,5 @@ clear
 menu
 ;;
 esac
+
+done

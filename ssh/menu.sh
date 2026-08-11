@@ -1,4 +1,5 @@
 #!/bin/bash
+while true; do
 clear
 m="\033[0;1;36m"
 y="\033[0;1;37m"
@@ -296,3 +297,5 @@ clear
 menu
 ;;
 esac
+
+done

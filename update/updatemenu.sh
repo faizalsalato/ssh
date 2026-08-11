@@ -1,4 +1,6 @@
 #!/bin/bash
+# Loop do menu - retorna ao menu apos cada acao
+while true; do
 # ==========================================
 # Color
 # hapus menu
@@ -98,3 +100,5 @@ sl-download-info
 #install-ss-plugin
 #xray-grpc
 cd
+
+done

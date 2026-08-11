@@ -1,4 +1,6 @@
 #!/bin/bash
+# Loop do menu - retorna ao menu apos cada acao
+while true; do
 clear
 slowdns () {
 echo -e "\033[1;31m════════════════════════════════════════════════════\033[0m"
@@ -109,7 +111,9 @@ Opcao11 () {
 
 Sair() {
     clear
-    exit
+    break
 }
 clear
 slowdns
+
+done
