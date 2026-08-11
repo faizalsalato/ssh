@@ -1,5 +1,5 @@
 #!/bin/bash
-# Mod By NevermoreSSH
+# Mod By blaylook
 # =====================================================
 
 # Color
@@ -26,7 +26,7 @@ apt -y install chrony
 timedatectl set-ntp true
 systemctl enable chronyd && systemctl restart chronyd
 systemctl enable chrony && systemctl restart chrony
-timedatectl set-timezone Asia/Kuala_Lumpur
+timedatectl set-timezone America/Los_Angeles
 chronyc sourcestats -v
 chronyc tracking -v
 date
@@ -59,7 +59,7 @@ rm acme.sh
 cd .acme.sh
 # Definir Let's Encrypt como padrão para evitar erro do ZeroSSL
 bash acme.sh --set-default-ca --server letsencrypt
-bash acme.sh --register-account -m rotateel@$domain
+bash acme.sh --register-account -m blaylook@$domain
 bash acme.sh --issue --standalone -d $domain --force
 bash acme.sh --installcert -d $domain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key
 
@@ -350,8 +350,8 @@ END
 # / / Installation Xray Service
 cat > /etc/systemd/system/xray.service << END
 [Unit]
-Description=Xray Service Mod By NevermoreSSH
-Documentation=https://nekopoi.care
+Description=Xray Service Mod By blaylook
+Documentation=https://blaylook.com
 After=network.target nss-lookup.target
 
 [Service]
@@ -386,8 +386,8 @@ systemctl enable xray.service
 systemctl restart xray.service
 
 # Install Trojan Go
-latest_version="$(curl -s "https://api.github.com/NevermoreSSH/addons/releases" | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
-trojango_link="https://github.com/NevermoreSSH/addons/releases/download/0.10.6/trojan-go-linux-amd64.zip"
+latest_version="$(curl -s "https://api.github.com/blaylook/addons/releases" | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
+trojango_link="https://github.com/blaylook/addons/releases/download/0.10.6/trojan-go-linux-amd64.zip"
 mkdir -p "/usr/bin/trojan-go"
 mkdir -p "/etc/trojan-go"
 cd `mktemp -d`
@@ -467,8 +467,8 @@ END
 # Installing Trojan Go Service
 cat > /etc/systemd/system/trojan-go.service << END
 [Unit]
-Description=Trojan-Go Service Mod By NevermoreSSH
-Documentation=nekopoi.care
+Description=Trojan-Go Service Mod By blaylook
+Documentation=blaylook.com
 After=network.target nss-lookup.target
 
 [Service]

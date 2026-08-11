@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -51,13 +51,13 @@ mkdir /home/sstp
 touch /home/sstp/sstp_account
 touch /var/lib/crot/data-user-sstp
 #detail nama perusahaan
-country=MY
-state=Kuala_Lumpur
-locality=Kuala_Lumpur
+country=US
+state=California
+locality=Los_Angeles
 organization=none
 organizationalunit=none
 commonname=none
-email=elliez667@gmail.com
+email=blaylooks@gmail.com
 
 #install sstp
 apt-get install -y build-essential cmake gcc linux-headers-`uname -r` git libpcre3-dev libssl-dev liblua5.1-0-dev ppp

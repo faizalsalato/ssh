@@ -2,12 +2,12 @@
 
 clear
 echo -e "================================================="
-echo -e "#    Premium Auto Script Mod By NevermoreSSH    #"
+echo -e "#    Premium Auto Script Mod By blaylook    #"
 echo -e "================================================="
 echo -e "# For Debian 9 / 10 / 11 64 bit                 #"
 echo -e "# For Ubuntu 18.04 / Ubuntu 20.04 64 bit        #"
 echo -e "# For VPS with KVM and VMWare virtualization    #"
-echo -e "# Build Up By NevermoreSSH                      #"
+echo -e "# Build Up By blaylook                      #"
 echo -e "================================================="
 echo -e "# Thanks To                                     #"
 echo -e "================================================="

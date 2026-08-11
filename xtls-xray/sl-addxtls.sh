@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script By NevermoreSSH
+# Script By blaylook
 red='\e[1;31m'
 green='\e[0;32m'
 NC='\e[0m'
@@ -52,7 +52,7 @@ service cron restart
 clear
 echo -e "================================="
 echo -e "           XRAY XTLS ONLY        " 
-echo -e "Script Create Auto Account By NevermoreSSH "
+echo -e "Script Create Auto Account By blaylook "
 echo -e "================================="
 echo -e "Remarks              : ${user}"
 echo -e "Key/Password Trojan  : ${user}"

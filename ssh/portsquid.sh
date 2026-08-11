@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'

@@ -32,18 +32,18 @@ shadowsocks_repo="raw.githubusercontent.com/faizalsalato/ssh/main/stunnel5"
 export DEBIAN_FRONTEND=noninteractive
 MYIP=$(wget -qO- ipinfo.io/ip);
 MYIP2="s/xxxxxxxxx/$MYIP/g";
-NET=$(ip -o $ANU -4 route show to default | awk '{print $5}');
+NET=$(ip -o -4 route show to default | awk '{print $5}');
 source /etc/os-release
 ver=$VERSION_ID
 
 #detail nama perusahaan
-country=MY
-state=Kuala_Lumpur
-locality=Kuala_Lumpur
+country=US
+state=California
+locality=Los_Angeles
 organization=none
 organizationalunit=none
 commonname=localhost
-email=nevermoressh@gmail.com
+email=blaylooks@gmail.com
 
 # simple password minimal
 
@@ -128,7 +128,7 @@ apt install libssl1.0-dev -y
 apt install dos2unix -y
 
 # set time GMT +8
-ln -fs /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime
+ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
 
 # set locale
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
@@ -230,7 +230,7 @@ systemctl restart sslh
 apt -y install vnstat
 /etc/init.d/vnstat restart
 apt -y install libsqlite3-dev
-wget https://github.com/NevermoreSSH/addons/releases/download/vnstat-2.6/vnstat-2.6.tar.gz
+wget https://github.com/blaylook/addons/releases/download/vnstat-2.6/vnstat-2.6.tar.gz
 tar zxvf vnstat-2.6.tar.gz
 cd vnstat-2.6
 ./configure --prefix=/usr --sysconfdir=/etc && make && make install

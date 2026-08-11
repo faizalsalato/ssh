@@ -17,10 +17,10 @@ if (!API_KEY) {
     process.exit(1);
 }
 
-// Proteção contra abuso (Max 5 contas a cada 15 min por IP)
+// Proteção contra abuso (Max 100 contas a cada 15 min por IP)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 5,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: { erro: 'Limite de tentativas excedido' }

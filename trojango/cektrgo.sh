@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -61,6 +61,6 @@ oth=$(cat /tmp/other.txt | sort | uniq | nl)
 echo "other";
 echo "$oth";
 echo "------------------------------------";
-echo "Script Mod By NevermoreSSH"
+echo "Script Mod By blaylook"
 rm -rf /tmp/other.txt
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # XRay Installation
-# By NevermoreSSH Script
+# By blaylook Script
 # ==================================
 MYIP=$(wget -qO- ipinfo.io/ip);
 clear
@@ -13,7 +13,7 @@ apt -y install chrony
 timedatectl set-ntp true
 systemctl enable chronyd && systemctl restart chronyd
 systemctl enable chrony && systemctl restart chrony
-timedatectl set-timezone Asia/Kuala_Lumpur
+timedatectl set-timezone America/Los_Angeles
 chronyc sourcestats -v
 chronyc tracking -v
 date

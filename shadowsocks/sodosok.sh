@@ -1,5 +1,5 @@
 #!/bin/bash
-#shadowsocks-libev obfs install By NevermoreSSH
+#shadowsocks-libev obfs install By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'

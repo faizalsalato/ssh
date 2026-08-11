@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -86,4 +86,4 @@ echo -e "Payload Websocket HTTP"
 echo -e "=============================="
 echo -e "GET / HTTP/1.1[crlf]Host: ${domain}[crlf]Upgrade: websocket[crlf][crlf]"
 echo -e "=============================="
-echo -e "Script Mod By NevermoreSSH"
+echo -e "Script Mod By blaylook"

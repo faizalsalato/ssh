@@ -52,7 +52,7 @@ umon="$(vnstat -i eth0 -m | grep "$(date +"%b '%y")" | awk '{print $6" "substr (
 tmon="$(vnstat -i eth0 -m | grep "$(date +"%b '%y")" | awk '{print $9" "substr ($10, 1, 1)}')"
 echo " "
 echo -e "$y                        MAIN MENU $wh"
-echo -e "$y                Script Mod By NevermoreSSH $wh"
+echo -e "$y                Script Mod By blaylook $wh"
 echo -e "${BB}————————————————————————————————————————————————————————${NC}"
 echo -e "                ${WB} ♦️ Server Information ♦️ ${NC}             "
 echo -e "${BB}————————————————————————————————————————————————————————${NC}"

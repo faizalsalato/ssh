@@ -5,7 +5,7 @@ NC='\e[0m'
 
 clear
 echo -e "${green}╔════════════════════════════════════════════════╗${NC}"
-echo -e "${green}║     CONFIGURAÇÃO MANUAL DE DOMÍNIO (ROTATEEL)  ║${NC}"
+echo -e "${green}║     CONFIGURAÇÃO MANUAL DE DOMÍNIO (blaylook)  ║${NC}"
 echo -e "${green}╚════════════════════════════════════════════════╝${NC}"
 echo ""
 echo "Antes de continuar, certifique-se de que já criou no Cloudflare:"

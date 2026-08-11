@@ -13,7 +13,41 @@ bin-release/
 *.ipa
 *.apk
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
-backup/ 
+# Project files
+backup/
+
+# Dependencies
+node_modules/
+
+# Environment (chaves secretas - nunca comitar!)
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Backup files
+*.backup
+*.bkp
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+log-install.txt
+install-vpn-*.log
+
+# Cache de downloads
+.vpn-cache/

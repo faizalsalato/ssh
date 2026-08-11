@@ -50,7 +50,7 @@ service cron restart
 mkdir -p /home/vps/public_html/
 cat > /home/vps/public_html/vless-$user.txt <<-END
 ====================================================================
-                       [Freedom Internet]
+                       [blaylook Internet]
 ====================================================================
 Remarks     : ${user}
 IP/Host     : ${MYIP}

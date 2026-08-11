@@ -65,7 +65,7 @@ npm install --omit=dev
 echo "Parando instância antiga (se existir)..."
 
 pm2 delete api-ssl >/dev/null 2>&1
-export API_KEY="sakaruteel"
+export API_KEY="${API_KEY:-sakr}"
 
 echo "Iniciando API..."
 

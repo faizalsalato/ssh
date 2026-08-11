@@ -2,7 +2,7 @@
 # Debian 9 & 10 64bit
 # Ubuntu 18.04 & 20.04 bit
 # Centos 7 & 8 64bit 
-# Mod By NevermoreSSH
+# Mod By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -49,7 +49,7 @@ if [[ -e /etc/wireguard/params ]]; then
 	exit 1
 fi
 
-echo -e "${Info} Wireguard Script Mod By NevermoreSSH"
+echo -e "${Info} Wireguard Script Mod By blaylook"
 # Detect public IPv4 address and pre-fill for the user
 
 # Detect public interface and pre-fill for the user

@@ -41,7 +41,7 @@ expi=$(date -d "$masaaktif days" +"%Y-%m-%d")
 mkdir -p /home/vps/public_html/
 cat > /home/vps/public_html/ssh-$Login.txt <<-END
 ====================================================================
-                       [Freedom Internet]
+                       [blaylook Internet]
 ====================================================================
             https://github.com/faizalsalato/ssh
 ====================================================================

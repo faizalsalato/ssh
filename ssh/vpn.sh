@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -22,7 +22,7 @@ echo -e "${NC}${RED}Permission Denied!${NC}";
 echo -e "${NC}${LIGHT}Fuck You!!"
 exit 0
 fi
-# Mod By NevermoreSSH
+# Mod By blaylook
 # ==================================================
 # Link Hosting Kalian
 ssh_repo="raw.githubusercontent.com/faizalsalato/ssh/main/ssh"
@@ -32,7 +32,7 @@ export DEBIAN_FRONTEND=noninteractive
 OS=`uname -m`;
 MYIP=$(wget -qO- ipinfo.io/ip);
 MYIP2="s/xxxxxxxxx/$MYIP/g";
-ANU=$(ip -o $ANU -4 route show to default | awk '{print $5}');
+ANU=$(ip -o -4 route show to default | awk '{print $5}');
 
 # Install OpenVPN dan Easy-RSA
 apt install openvpn easy-rsa unzip -y
@@ -54,6 +54,7 @@ sed -i 's/#AUTOSTART="all"/AUTOSTART="all"/g' /etc/default/openvpn
 # restart openvpn dan cek status openvpn
 systemctl enable --now openvpn-server@server-tcp
 systemctl enable --now openvpn-server@server-udp
+systemctl enable --now openvpn-server@server-udp53
 /etc/init.d/openvpn restart
 /etc/init.d/openvpn status
 
@@ -97,6 +98,24 @@ END
 
 sed -i $MYIP2 /etc/openvpn/udp.ovpn;
 
+# Buat config client UDP 53
+cat > /etc/openvpn/udp53.ovpn <<-END
+client
+dev tun
+proto udp
+remote xxxxxxxxx 53
+resolv-retry infinite
+route-method exe
+nobind
+persist-key
+persist-tun
+auth-user-pass
+comp-lzo
+verb 3
+END
+
+sed -i $MYIP2 /etc/openvpn/udp53.ovpn;
+
 # Buat config client SSL
 cat > /etc/openvpn/ssl.ovpn <<-END
 client
@@ -135,6 +154,14 @@ echo '</ca>' >> /etc/openvpn/udp.ovpn
 # Copy config OpenVPN client ke home directory root agar mudah didownload ( UDP 2200 )
 cp /etc/openvpn/udp.ovpn /home/vps/public_html/udp.ovpn
 
+# masukkan certificatenya ke dalam config client UDP 53
+echo '<ca>' >> /etc/openvpn/udp53.ovpn
+cat /etc/openvpn/server/ca.crt >> /etc/openvpn/udp53.ovpn
+echo '</ca>' >> /etc/openvpn/udp53.ovpn
+
+# Copy config OpenVPN client ke home directory root agar mudah didownload ( UDP 53 )
+cp /etc/openvpn/udp53.ovpn /home/vps/public_html/udp53.ovpn
+
 # masukkan certificatenya ke dalam config client SSL
 echo '<ca>' >> /etc/openvpn/ssl.ovpn
 cat /etc/openvpn/server/ca.crt >> /etc/openvpn/ssl.ovpn
@@ -147,6 +174,7 @@ cp /etc/openvpn/ssl.ovpn /home/vps/public_html/ssl.ovpn
 
 iptables -t nat -I POSTROUTING -s 10.6.0.0/24 -o $ANU -j MASQUERADE
 iptables -t nat -I POSTROUTING -s 10.7.0.0/24 -o $ANU -j MASQUERADE
+iptables -t nat -I POSTROUTING -s 10.8.0.0/24 -o $ANU -j MASQUERADE
 iptables-save > /etc/iptables.up.rules
 chmod +x /etc/iptables.up.rules
 

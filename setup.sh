@@ -18,61 +18,15 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 LIGHT='\033[0;37m'
 
-
-# Função para perguntar se deseja instalar ou pular a etapa
-perguntar_etapa() {
-    local servico=$1
-    echo -e "\n${CYAN}======================================================${NC}"
-    while true; do
-        read -p "$(echo -e ${GREEN}"Deseja instalar ${servico}? [S/n] (Enter = Sim): "${NC})" sn
-        case $sn in
-            [Ss]* | "" ) clear; return 0 ;; # Retorna 0 (sucesso/sim) para executar
-            [Nn]* ) echo -e "${ORANGE}--- Pulo selecionado: Ignorando ${servico} ---${NC}"; return 1 ;; # Retorna 1 para pular
-            * ) echo -e "${RED}Por favor, responda com S (Sim) ou N (Não/Pular).${NC}";;
-        esac
-    done
-}
 # ==========================================
-# Link Hosting Kalian Untuk Ssh Vpn
-ssh_repo="raw.githubusercontent.com/faizalsalato/ssh/main/ssh"
-# Link Hosting Kalian Untuk Sstp
-sstp_repo="raw.githubusercontent.com/faizalsalato/ssh/main/sstp"
-# Link Hosting Kalian Untuk Ssr
-ssr_repo="raw.githubusercontent.com/faizalsalato/ssh/main/ssr"
-# Link Hosting Kalian Untuk Shadowsocks
-shadowsocks_repo="raw.githubusercontent.com/faizalsalato/ssh/main/shadowsocks"
-# Link Hosting Kalian Untuk Wireguard
-wireguard_repo="raw.githubusercontent.com/faizalsalato/ssh/main/wireguard"
-# Link Hosting Kalian Untuk Xray
-xray_repo="raw.githubusercontent.com/faizalsalato/ssh/main/xray"
-# Link Hosting Kalian Untuk Ipsec
-ipsec_repo="raw.githubusercontent.com/faizalsalato/ssh/main/ipsec"
-# Link Hosting Kalian Untuk Backup
-backup_repo="raw.githubusercontent.com/faizalsalato/ssh/main/backup"
-# Link Hosting Kalian Untuk Websocket
-websocket_repo="raw.githubusercontent.com/faizalsalato/ssh/main/websocket"
-# Link Hosting Kalian Untuk Ohp
-ohp_repo="raw.githubusercontent.com/faizalsalato/ssh/main/ohp"
+# Carrega configurações centralizadas
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${SCRIPT_DIR}/config.env" ]; then
+    source "${SCRIPT_DIR}/config.env"
+fi
 
-# Getting
-MYIP=$(wget -qO- ipinfo.io/ip);
-MYIP=$(curl -s ipinfo.io/ip )
-MYIP=$(curl -sS ipv4.icanhazip.com)
-MYIP=$(curl -sS ifconfig.me )
-echo "Checking VPS"
-IZIN=$(wget -qO- ipinfo.io/ip);
-
-# fix dns missing
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
-echo "nameserver 2606:4700:4700::1111" >> /etc/resolv.conf
-
-
-
-mkdir /var/lib/crot;
-echo "IP=" >> /var/lib/crot/ipvps.conf
-
+# ==========================================
+# Função para perguntar se deseja instalar ou pular a etapa
 perguntar_etapa() {
     local servico="$1"
 
@@ -87,6 +41,34 @@ perguntar_etapa() {
         esac
     done
 }
+
+# ==========================================
+# Link Hosting - Use config.env se disponível, senão use defaults
+ssh_repo="${SSH_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/ssh}"
+sstp_repo="${SSTP_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/sstp}"
+ssr_repo="${SSR_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/ssr}"
+shadowsocks_repo="${SHADOWSOCKS_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/shadowsocks}"
+wireguard_repo="${WIREGUARD_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/wireguard}"
+xray_repo="${XRAY_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/xray}"
+ipsec_repo="${IPSEC_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/ipsec}"
+backup_repo="${BACKUP_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/backup}"
+websocket_repo="${WEBSOCKET_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/websocket}"
+ohp_repo="${OHP_REPO:-raw.githubusercontent.com/faizalsalato/ssh/main/ohp}"
+
+# Getting
+MYIP=$(curl -sS ifconfig.me)
+echo "Checking VPS"
+IZIN=$(wget -qO- ipinfo.io/ip);
+
+# fix dns missing
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
+echo "nameserver 2606:4700:4700::1111" >> /etc/resolv.conf
+
+
+mkdir /var/lib/crot;
+echo "IP=" >> /var/lib/crot/ipvps.conf
 
 # Instalar Host
 if perguntar_etapa "Host"; then
@@ -194,7 +176,7 @@ rm -f /root/install-ss-plugin.sh
 cat <<EOF> /etc/systemd/system/autosett.service
 [Unit]
 Description=autosetting
-Documentation=nekopoi.care
+Documentation=blaylook.com
 
 [Service]
 Type=oneshot
@@ -211,7 +193,8 @@ chmod +x /etc/set.sh
 history -c
 echo "1.2" > /home/ver
 echo " "
-echo "Installation has been completed!!"echo " "
+echo "Installation has been completed!!"
+echo " "
 echo "============================================================================" | tee -a log-install.txt
 echo "" | tee -a log-install.txt
 echo "----------------------------------------------------------------------------" | tee -a log-install.txt
@@ -219,7 +202,7 @@ echo ""  | tee -a log-install.txt
 echo "   >>> Service & Port"  | tee -a log-install.txt
 echo "   - SlowDNS SSH             : ALL Port SSH"  | tee -a log-install.txt
 echo "   - OpenSSH                 : 22, 2253"  | tee -a log-install.txt
-echo "   - OpenVPN                 : TCP 1194, UDP 2200, SSL 990"  | tee -a log-install.txt
+echo "   - OpenVPN                 : TCP 1194, UDP 2200, UDP 53, SSL 990"  | tee -a log-install.txt
 echo "   - Stunnel5                : 443, 445"  | tee -a log-install.txt
 echo "   - Dropbear                : 443, 109, 143"  | tee -a log-install.txt
 echo "   - CloudFront Websocket    : "  | tee -a log-install.txt
@@ -249,7 +232,7 @@ echo "   - OHP OpenVPN             : 8383"  | tee -a log-install.txt
 echo "   - TrojanGo                : 2087"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "   >>> Server Information & Other Features"  | tee -a log-install.txt
-echo "   - Timezone                : Asia/Kuala_Lumpur (GMT +8)"  | tee -a log-install.txt
+echo "   - Timezone                : America/Los_Angeles (GMT +8)"  | tee -a log-install.txt
 echo "   - Fail2Ban                : [ON]"  | tee -a log-install.txt
 echo "   - Dflate                  : [ON]"  | tee -a log-install.txt
 echo "   - IPtables                : [ON]"  | tee -a log-install.txt

@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -93,7 +93,7 @@ cat > /home/vps/public_html/vmess-$user.txt <<-END
 
 ====================================================================
              P R O J E C T  O F  N E V E R M O R E S S H
-                       [Freedom Internet]
+                       [blaylook Internet]
 ====================================================================
              https://github.com/faizalsalato/ssh
 ====================================================================
@@ -144,4 +144,4 @@ echo -e "Link TLS    : ${xrayv2ray1}"
 echo -e "========================="
 echo -e "Link No TLS : ${xrayv2ray2}"
 echo -e "========================="
-echo -e "Script Mod By NevermoreSSH"
+echo -e "Script Mod By blaylook"

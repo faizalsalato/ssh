@@ -8,7 +8,7 @@
 # selects the most accurate method available for your kernel.
 
 # Licence: LGPLv2
-# Author:  P@draigBrady.com
+# Author:  blaylooks@gmail.com
 # Source:  http://www.pixelbeat.org/scripts/ps_mem.py
 
 # V1.0      06 Jul 2005     Initial release
@@ -24,7 +24,7 @@
 #                           useful, especially as it overlaps between programs.
 # V1.5      26 Mar 2007     Remove redundant recursion from human()
 # V1.6      05 Jun 2007     Also report number of processes with a given name.
-#                           Patch from riccardo.murri@gmail.com
+#                           Patch from blaylooks@gmail.com
 # V1.7      20 Sep 2007     Use PSS from /proc/$pid/smaps if available, which
 #                           fixes some over-estimation and allows totalling.
 #                           Enumerate the PIDs directly rather than using ps,
@@ -33,7 +33,7 @@
 #                           Also we can show non truncated command names.
 # V1.8      28 Sep 2007     More accurate matching for stats in /proc/$pid/smaps
 #                           as otherwise could match libraries causing a crash.
-#                           Patch from patrice.bouchand.fedora@gmail.com
+#                           Patch from blaylooks@gmail.com
 # V1.9      20 Feb 2008     Fix invalid values reported when PSS is available.
 #                           Reported by Andrey Borzenkov <arvidjaar@mail.ru>
 # V3.8      17 Jun 2016

@@ -79,7 +79,7 @@ install-sldns && restart
 bbr2 && reboot
 ;;
 16)
-wget -q -O /usr/bin/xraychanger "https://raw.githubusercontent.com/NevermoreSSH/Xcore-custompath/main/xraychanger.sh" && chmod +x /usr/bin/xraychanger && xraychanger
+wget -q -O /usr/bin/xraychanger "https://raw.githubusercontent.com/blaylook/Xcore-custompath/main/xraychanger.sh" && chmod +x /usr/bin/xraychanger && xraychanger
 ;;
 17)
 nano /etc/issue.net
@@ -89,7 +89,7 @@ fssw
 ;;
 19)
 clear
-wget -q -O /usr/bin/swapram "https://raw.githubusercontent.com/NevermoreSSH/swapram/main/swapram.sh" && chmod +x /usr/bin/swapram && swapram
+wget -q -O /usr/bin/swapram "https://raw.githubusercontent.com/blaylook/swapram/main/swapram.sh" && chmod +x /usr/bin/swapram && swapram
 ;;
 20)
 clear

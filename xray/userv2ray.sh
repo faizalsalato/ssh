@@ -2,7 +2,7 @@
 # =========================================
 # Quick Setup | Script Setup Manager
 # Edition : Stable Edition V1.0
-# Auther  : NevermoreSSH
+# Auther  : blaylook
 # (C) Copyright 2022
 # =========================================
 clear
@@ -68,4 +68,4 @@ echo -e "Link TLS    : ${xrayv2ray1}"
 echo -e "========================="
 echo -e "Link No TLS : ${xrayv2ray2}"
 echo -e "========================="
-echo -e "Script Mod By NevermoreSSH"
+echo -e "Script Mod By blaylook"

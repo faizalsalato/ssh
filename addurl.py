@@ -1,86 +1,63 @@
 #!/usr/bin/env python3
 
 """
-Substitui automaticamente:
+Substitui automaticamente URLs e variáveis de repositório nos scripts.
 
-* faizalsalato/ssh -> faizalsalato/ssh
-* Variáveis akbarvpn -> nomes reais dos serviços
+Uso:
+    python addurl.py
 
-Funciona em:
-
-* Arquivos com extensão
-* Arquivos sem extensão
-* Scripts .sh, .py, .conf, .service, etc.
+Exemplo:
+    Substitui "faizalsalato/ssh" -> "seu_user/seu_repo"
+    e atualiza todas as referências nos arquivos .sh, .py, .conf, etc.
 
 Ignora:
-
-* .git
-* arquivos binários
-* backups
-  """
+    - .git
+    - node_modules
+    - arquivos binários
+    - backups
+"""
 
 from pathlib import Path
+import sys
 
 BASE_DIR = Path(__file__).parent.resolve()
 
+# ============================================================
+# CONFIGURAÇÃO: edite abaixo para substituir pelas suas URLs
+# ============================================================
 REPLACEMENTS = {
-# Repositório antigo -> novo
-"faizalsalato/ssh/": "faizalsalato/ssh/",
-"faizalsalato/ssh": "faizalsalato/ssh",
-
-
-# Variáveis
-"ssh_repo=": 'ssh_repo=',
-"sstp_repo=": 'sstp_repo=',
-"ssr_repo=": 'ssr_repo=',
-"shadowsocks_repo=": 'shadowsocks_repo=',
-"wireguard_repo=": 'wireguard_repo=',
-"xray_repo=": 'xray_repo=',
-"ipsec_repo=": 'ipsec_repo=',
-"backup_repo=": 'backup_repo=',
-"websocket_repo=": 'websocket_repo=',
-"ohp_repo=": 'ohp_repo=',
-
-# Referências às variáveis
-"${ssh_repo}": "${ssh_repo}",
-"${sstp_repo}": "${sstp_repo}",
-"${ssr_repo}": "${ssr_repo}",
-"${shadowsocks_repo}": "${shadowsocks_repo}",
-"${wireguard_repo}": "${wireguard_repo}",
-"${xray_repo}": "${xray_repo}",
-"${ipsec_repo}": "${ipsec_repo}",
-"${backup_repo}": "${backup_repo}",
-"${websocket_repo}": "${websocket_repo}",
-"${ohp_repo}": "${ohp_repo}",
-
-"$ssh_repo": "$ssh_repo",
-"$ssh_repon": "$sstp_repo",
-"$ssh_reponn": "$ssr_repo",
-"$ssh_reponnn": "$shadowsocks_repo",
-"$ssh_reponnnn": "$wireguard_repo",
-"$ssh_reponnnnn": "$xray_repo",
-"$ssh_reponnnnnn": "$ipsec_repo",
-"$ssh_reponnnnnnn": "$backup_repo",
-"$ssh_reponnnnnnnn": "$websocket_repo",
-"$ssh_reponnnnnnnnn": "$ohp_repo",
-
-
+    # Repositório antigo                 -> Repositório novo
+    "faizalsalato/ssh/":                "faizalsalato/ssh/",
+    "faizalsalato/ssh":                 "faizalsalato/ssh",
+    "raw.githubusercontent.com/faizalsalato/ssh": "raw.githubusercontent.com/faizalsalato/ssh",
+    # Emails e domínios (todos devem usar blaylook)
+    "blaylooks@gmail.com":              "blaylooks@gmail.com",
+    "nekopoi.care":                     "blaylook.com",
+    "mantapxsl.my.id":                  "blaylook.com",
+    "nevermoressh.my.id":               "blaylook.com",
+    "nevermoressh.tech":                "blaylook.com",
+    # Marcas
+    "NevermoreSSH":                     "blaylook",
+    "ROTATEEL SSH":                     "blaylook",
+    "ROTATEEL":                         "blaylook",
+    "Freedom Internet":                 "blaylook Internet",
 }
 
 IGNORE_DIRS = {
-".git",
-"**pycache**",
-".venv",
-"venv",
-"node_modules"
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "node_modules",
+    "backup",
 }
 
 BINARY_EXTENSIONS = {
-".png", ".jpg", ".jpeg", ".gif", ".webp",
-".zip", ".rar", ".7z", ".tar", ".gz", ".xz",
-".mp3", ".mp4", ".avi", ".mkv",
-".pdf", ".so", ".dll", ".exe", ".bin",
-".pyc", ".o", ".a"
+    ".png", ".jpg", ".jpeg", ".gif", ".webp",
+    ".zip", ".rar", ".7z", ".tar", ".gz", ".xz",
+    ".mp3", ".mp4", ".avi", ".mkv",
+    ".pdf", ".so", ".dll", ".exe", ".bin",
+    ".pyc", ".o", ".a",
 }
 
 checked = 0
@@ -98,8 +75,11 @@ for file in BASE_DIR.rglob("*"):
         continue
     if file.suffix.lower() in BINARY_EXTENSIONS:
         continue
-    if file.name.endswith(".backup"):
+    if file.name.endswith(".backup") or file.name.endswith(".bkp"):
         continue
+    if file.name == "addurl.py":
+        continue
+
     checked += 1
     try:
         content = file.read_text(encoding="utf-8", errors="ignore")
@@ -107,22 +87,26 @@ for file in BASE_DIR.rglob("*"):
         for old, new in REPLACEMENTS.items():
             content = content.replace(old, new)
         if content != original:
-            backup_file = Path(str(file) + ".backup")
-            backup_file.write_text(original, encoding="utf-8")
             file.write_text(content, encoding="utf-8")
             modified += 1
-            print(f"✓ {file.relative_to(BASE_DIR)}")
+            print(f"  [OK] {file.relative_to(BASE_DIR)}")
     except Exception as e:
-        print(f"✗ {file}: {e}")
-
+        print(f"  [ERRO] {file}: {e}")
 
 print()
 print("=" * 60)
 print("RESUMO")
 print("=" * 60)
-print(f"Arquivos verificados : {checked}")
-print(f"Arquivos modificados : {modified}")
-print(f"Backups criados      : {modified}")
+print(f"  Arquivos verificados : {checked}")
+print(f"  Arquivos modificados : {modified}")
 print("=" * 60)
-print()
-print("Concluído!")
+
+if modified == 0:
+    print()
+    print("AVISO: Nenhum arquivo foi modificado!")
+    print("Edite o dicionário REPLACEMENTS em addurl.py com")
+    print("suas próprias URLs antes de executar novamente.")
+    print()
+    print("Exemplo:")
+    print('  "faizalsalato/ssh" -> "seu_usuario/seu_repo"')
+

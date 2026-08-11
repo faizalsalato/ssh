@@ -1,6 +1,6 @@
 [Unit]
-Description=Python Proxy By NevermoreSSH
-Documentation=https://nekopoi.care
+Description=Python Proxy By blaylook
+Documentation=https://blaylook.com
 After=network.target nss-lookup.target
 
 [Service]

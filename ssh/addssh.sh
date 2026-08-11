@@ -58,7 +58,7 @@ expi=`date -d "$masaaktif days" +"%Y-%m-%d"`
 cat > /home/vps/public_html/ssh-$Login.txt <<-END
 ====================================================================
             
-                       [Freedom Internet]
+                       [blaylook Internet]
 ====================================================================
             https://github.com/faizalsalato/ssh
 ====================================================================
@@ -93,6 +93,7 @@ OHP OpenVPN: 8383
 OVPN Websocket: 2086
 OVPN Port TCP: $ovpn
 OVPN Port UDP: $ovpn2
+OVPN Port UDP DNS: 53
 OVPN Port SSL: 990
 ==============================
 Payload Websocket SSL/TLS
@@ -103,7 +104,7 @@ Payload Websocket HTTP
 ==============================
 GET / HTTP/1.1[crlf]Host: [host][crlf]Upgrade: websocket[crlf][crlf]
 ==============================
-Script Mod By NevermoreSSH
+Script Mod By blaylook
 
 END
 
@@ -135,9 +136,11 @@ echo -e "OHP OpenVPN: 8383"
 echo -e "OVPN Websocket: 2086"
 echo -e "OVPN Port TCP: $ovpn"
 echo -e "OVPN Port UDP: $ovpn2"
+echo -e "OVPN Port UDP DNS: 53"
 echo -e "OVPN Port SSL: 990"
 echo -e "OVPN TCP: http://$IP:89/tcp.ovpn"
 echo -e "OVPN UDP: http://$IP:89/udp.ovpn"
+echo -e "OVPN UDP53: http://$IP:89/udp53.ovpn"
 echo -e "OVPN SSL: http://$IP:89/ssl.ovpn"
 echo -e "SSH Config : http://${domain}:89/ssh-$Login.txt"
 echo -e "=============================="
@@ -149,4 +152,4 @@ echo -e "Payload Websocket HTTP"
 echo -e "=============================="
 echo -e "GET / HTTP/1.1[crlf]Host: [host][crlf]Upgrade: websocket[crlf][crlf]"
 echo -e "=============================="
-echo -e "Script Mod By NevermoreSSH"
+echo -e "Script Mod By blaylook"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script  By NevermoreSSH
+# Script  By blaylook
 # 2022 SLOWDNS
 # ===============================================
 cd
@@ -57,8 +57,8 @@ cd
 #install client-sldns.service
 cat > /etc/systemd/system/client-sldns.service << END
 [Unit]
-Description=Client SlowDNS By NevermoreSSH
-Documentation=https://nekopoi.care
+Description=Client SlowDNS By blaylook
+Documentation=https://blaylook.com
 After=network.target nss-lookup.target
 
 [Service]
@@ -77,8 +77,8 @@ cd
 #install server-sldns.service
 cat > /etc/systemd/system/server-sldns.service << END
 [Unit]
-Description=Server SlowDNS By NevermoreSSH
-Documentation=https://nekopoi.care
+Description=Server SlowDNS By blaylook
+Documentation=https://blaylook.com
 After=network.target nss-lookup.target
 
 [Service]

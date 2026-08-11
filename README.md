@@ -3,7 +3,7 @@
 
 <h2 align="center">
 Auto Script Install All VPN Service
-Mod By NevermoreSSH
+Mod By blaylook
 <img src="https://img.shields.io/badge/Release-v1.4-purple.svg"></h2>
 
 </p> 
@@ -208,7 +208,7 @@ reboot
 • OpenSSH                   : 22, 2253
 • Dropbear                  : 443, 109, 143, 1153
 • Stunnel5                  : 443, 445, 777
-• OpenVPN                   : TCP 1194, UDP 2200, SSL 990 [OFF]
+• OpenVPN                   : TCP 1194, UDP 2200, UDP 53, SSL 990
 • Websocket SSH TLS         : 443
 • Websocket SSH HTTP        : 8880
 • Websocket OpenVPN         : 2086 [OFF]
@@ -237,7 +237,7 @@ reboot
 
 
  ### Server Information & Other Features
-• Timezone                : Asia/Kuala_Lumpur (GMT +8)
+• Timezone                : America/Los_Angeles (GMT +8)
 • Fail2Ban                : [ON]
 • Dflate                  : [ON]
 • IPtables                : [ON]
@@ -251,7 +251,7 @@ reboot
 • Auto Update
 ```
 <p align="center">
-<img height=21 src="https://komarev.com/ghpvc/?username=NevermoreSSH">
+<img height=21 src="https://komarev.com/ghpvc/?username=blaylook">
 </p>
 <div height='45' align="center">
 

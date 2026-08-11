@@ -3705,7 +3705,7 @@ _regAccount() {
       if [ -z "$_email" ]; then
         _info "$(__green "$PROJECT_NAME is using ZeroSSL as default CA now.")"
         _info "$(__green "Please update your account with an email address first.")"
-        _info "$(__green "$PROJECT_ENTRY --register-account -m my@example.com")"
+        _info "$(__green "$PROJECT_ENTRY --register-account -m blaylooks@gmail.com")"
         _info "See: $(__green "$_ZEROSSL_WIKI")"
         return 1
       fi

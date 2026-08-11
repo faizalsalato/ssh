@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -30,11 +30,12 @@ echo -e "======================================"
 echo -e ""
 echo -e "[1]  Change Port TCP $ovpn"
 echo -e "[2]. Change Port UDP $ovpn2"
-echo -e "[3]. Exit"
+echo -e "[3]. Change Port UDP DNS 53"
+echo -e "[4]. Exit"
 echo -e ""
 echo -e "======================================"
 echo -e ""
-read -p "Select From Options [ 1-3 ] : " prot
+read -p "Select From Options [ 1-4 ] : " prot
 echo -e ""
 case $prot in
 1)
@@ -91,7 +92,7 @@ echo '</ca>' >> /etc/openvpn/tcp.ovpn
 cp /etc/openvpn/tcp.ovpn /home/vps/public_html/tcp.ovpn
 systemctl disable --now openvpn-server@server-tcp > /dev/null
 systemctl enable --now openvpn-server@server-tcp > /dev/null
-sed -i "s/   - OpenVPN                 : TCP $ovpn, UDP $ovpn2, SSL 442/   - OpenVPN                 : TCP $vpn, UDP $ovpn2, SSL 442/g" /root/log-install.txt
+sed -i "s/   - OpenVPN                 : TCP $ovpn, UDP $ovpn2, UDP 53, SSL 442/   - OpenVPN                 : TCP $vpn, UDP $ovpn2, UDP 53, SSL 442/g" /root/log-install.txt
 sed -i "s/$ovpn/$vpn/g" /etc/stunnel/stunnel.conf
 echo -e "\e[032;1mPort $vpn modified successfully\e[0m"
 else
@@ -153,13 +154,74 @@ echo '</ca>' >> /etc/openvpn/udp.ovpn
 cp /etc/openvpn/udp.ovpn /home/vps/public_html/udp.ovpn
 systemctl disable --now openvpn-server@server-udp > /dev/null
 systemctl enable --now openvpn-server@server-udp > /dev/null
-sed -i "s/   - OpenVPN                 : TCP $ovpn, UDP $ovpn2, SSL 442/   - OpenVPN                 : TCP $ovpn, UDP $vpn, SSL 442/g" /root/log-install.txt
+sed -i "s/   - OpenVPN                 : TCP $ovpn, UDP $ovpn2, UDP 53, SSL 442/   - OpenVPN                 : TCP $ovpn, UDP $vpn, UDP 53, SSL 442/g" /root/log-install.txt
 echo -e "\e[032;1mPort $vpn modified successfully\e[0m"
 else
 echo "Port $vpn is used"
 fi
 ;;
 3)
+read -p "New Port OpenVPN UDP DNS : " vpn
+if [ -z $vpn ]; then
+echo "Please Input Port"
+exit 0
+fi
+cek=$(netstat -nutlp | grep -w $vpn)
+if [[ -z $cek ]]; then
+rm -f /etc/openvpn/server/server-udp53.conf
+rm -f /etc/openvpn/udp53.ovpn
+rm -f /home/vps/public_html/udp53.ovpn
+cat > /etc/openvpn/server/server-udp53.conf<<END
+port $vpn
+proto udp
+dev tun
+ca ca.crt
+cert server.crt
+key server.key
+dh dh2048.pem
+plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
+verify-client-cert none
+username-as-common-name
+server 10.8.0.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+keepalive 5 30
+comp-lzo
+persist-key
+persist-tun
+status openvpn-udp53.log
+verb 3
+explicit-exit-notify
+END
+cat > /etc/openvpn/udp53.ovpn <<-END
+client
+dev tun
+proto udp
+remote $MYIP $vpn
+resolv-retry infinite
+route-method exe
+nobind
+persist-key
+persist-tun
+auth-user-pass
+comp-lzo
+verb 3
+END
+echo '<ca>' >> /etc/openvpn/udp53.ovpn
+cat /etc/openvpn/server/ca.crt >> /etc/openvpn/udp53.ovpn
+echo '</ca>' >> /etc/openvpn/udp53.ovpn
+cp /etc/openvpn/udp53.ovpn /home/vps/public_html/udp53.ovpn
+systemctl disable --now openvpn-server@server-udp53 > /dev/null
+systemctl enable --now openvpn-server@server-udp53 > /dev/null
+sed -i "s/   - OpenVPN                 : TCP $ovpn, UDP $ovpn2, UDP 53, SSL 442/   - OpenVPN                 : TCP $ovpn, UDP $ovpn2, UDP $vpn, SSL 442/g" /root/log-install.txt
+echo -e "\e[032;1mPort $vpn modified successfully\e[0m"
+else
+echo "Port $vpn is used"
+fi
+;;
+4)
 exit
 menu
 ;;

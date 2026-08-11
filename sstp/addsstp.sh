@@ -1,5 +1,5 @@
 #!/bin/bash
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 # Color
 RED='\033[0;31m'
@@ -64,5 +64,5 @@ Cert      : http://$IP:89/server.crt
 Created   : $hariini
 Expired   : $exp
 ============================
-Script Mod By NevermoreSSH
+Script Mod By blaylook
 EOF

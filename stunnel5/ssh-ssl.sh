@@ -34,13 +34,13 @@ source /etc/os-release
 ver=$VERSION_ID
 
 #detail nama perusahaan
-country=MY
-state=Kuala_Lumpur
-locality=Kuala_Lumpur
+country=US
+state=California
+locality=Los_Angeles
 organization=none
 organizationalunit=none
 commonname=none
-email=elliez667@gmail.com
+email=blaylooks@gmail.com
 
 cd
 

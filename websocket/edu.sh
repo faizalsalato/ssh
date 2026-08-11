@@ -1,6 +1,6 @@
 #!/bin/bash
 # Proxy For Edukasi & Imclass
-# By NevermoreSSH
+# By blaylook
 # ==========================================
 
 # Link Hosting Kalian
@@ -41,8 +41,8 @@ chmod +x /usr/local/bin/ws-ovpn
 # Installing Service
 cat > /etc/systemd/system/ws-ovpn.service << END
 [Unit]
-Description=Python Proxy Mod By nevermoressh
-Documentation=https://nekopoi.care
+Description=Python Proxy Mod By blaylook
+Documentation=https://blaylook.com
 After=network.target nss-lookup.target
 
 [Service]
@@ -70,7 +70,7 @@ chmod +x /usr/local/bin/ws-tls
 cat > /etc/systemd/system/ws-tls.service << END
 [Unit]
 Description=Python Proxy Mod By geovpn
-Documentation=https://nekopoi.care
+Documentation=https://blaylook.com
 After=network.target nss-lookup.target
 
 [Service]
