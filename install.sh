@@ -25,8 +25,31 @@
 #   bash install.sh --dry-run # Simula a instalação
 #   bash install.sh --help    # Ajuda
 # ============================================================
+# Suporte: Ubuntu 18.04 / 20.04 / 22.04 / 24.04 | Debian 10/11/12
+# ============================================================
 
 set -o pipefail
+
+# ── Detecção de OS ──
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS_ID="${ID:-ubuntu}"
+    OS_VERSION="${VERSION_ID:-0}"
+else
+    OS_ID="ubuntu"
+    OS_VERSION="0"
+fi
+
+# Ajustes por versão
+PHP_VERSION="7.4"
+PHP_FPM_SOCK="/var/run/php/php7.4-fpm.sock"
+case "${OS_VERSION:0:2}" in
+    22) PHP_VERSION="8.1"; PHP_FPM_SOCK="/var/run/php/php8.1-fpm.sock" ;;
+    24) PHP_VERSION="8.3"; PHP_FPM_SOCK="/var/run/php/php8.3-fpm.sock" ;;
+    20|18) ;; # default 7.4
+esac
+
+echo -e "\033[0;36m[INFO]\033[0m OS: ${OS_ID} ${OS_VERSION} | PHP: ${PHP_VERSION}"
 
 # ----------------------------------------------------------
 # Inicialização
