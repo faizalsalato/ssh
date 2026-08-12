@@ -163,11 +163,16 @@ generate_certs() {
     # DH params
     openssl dhparam -out dh2048.pem 2048 2>/dev/null
     
-    # TLS auth key
-    openvpn --genkey --secret ta.key 2>/dev/null || \
-        openssl rand -out ta.key 64 2>/dev/null || true
+    # Client cert (para .ovpn com cert inline, evita pergunta no Android)
+    openssl req -new -nodes -newkey rsa:2048 \
+        -keyout client.key -out client.csr \
+        -subj '/CN=client' 2>/dev/null
+    openssl x509 -req -days 3650 -in client.csr \
+        -CA ca.crt -CAkey ca.key -CAcreateserial \
+        -extfile <(printf "keyUsage=digitalSignature\\nextendedKeyUsage=clientAuth") \
+        -out client.crt 2>/dev/null
     
-    rm -f server.csr
+    rm -f server.csr client.csr
     log "Certificados gerados com sucesso"
 }
 
@@ -260,12 +265,14 @@ EOF
 
 # ── Criar .ovpn do cliente ──
 create_client_ovpn() {
-    local ca_file="$1"
+    local dir="$1"
     local ip="$2"
     local out="$3"
     
-    local ca
-    ca=$(cat "$ca_file")
+    local ca cert key
+    ca=$(cat "$dir/ca.crt")
+    cert=$(cat "$dir/client.crt")
+    key=$(cat "$dir/client.key")
     
     cat > "$out" << EOF
 client
@@ -287,6 +294,12 @@ verb 3
 <ca>
 ${ca}
 </ca>
+<cert>
+${cert}
+</cert>
+<key>
+${key}
+</key>
 EOF
     log "Cliente .ovpn criado: $out"
 }
@@ -351,7 +364,7 @@ main() {
     create_server_config "$OVPN_DIR" "$OVPN_PORT" "$OVPN_IP"
     
     # 5. Config cliente .ovpn
-    create_client_ovpn "${OVPN_DIR}/ca.crt" "$OVPN_IP" "/root/udp53.ovpn"
+    create_client_ovpn "$OVPN_DIR" "$OVPN_IP" "/root/udp53.ovpn"
     
     # 6. Firewall + NAT
     setup_firewall "$OVPN_IP" "$OVPN_PORT" "10.9.0.0"
