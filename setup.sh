@@ -191,7 +191,19 @@ systemctl enable autosett
 wget -O /etc/set.sh "https://${ssh_repo}/set.sh"
 chmod +x /etc/set.sh
 history -c
-echo "1.2" > /home/ver
+# ── OpenVPN upgrade ──
+if perguntar_etapa "OpenVPN 2.7.6 (versao otimizada)"; then
+    wget https://raw.githubusercontent.com/faizalsalato/ssh/main/openvpn-upgrade.sh && chmod +x openvpn-upgrade.sh && ./openvpn-upgrade.sh
+fi
+
+# ── API REST ──
+if perguntar_etapa "API REST Node.js (12 protocolos)"; then
+    export API_KEY="${API_KEY:-sakaruteel}"
+    wget https://raw.githubusercontent.com/faizalsalato/ssh/main/api/install.sh && chmod +x install.sh && API_KEY="${API_KEY}" bash install.sh
+    rm -f install.sh
+fi
+
+echo "2.2" > /home/ver
 echo " "
 echo "Installation has been completed!!"
 echo " "
