@@ -3,9 +3,11 @@
 <h2 align="center">
 🚀 Auto Script Install All VPN Service
 <br>Mod By blaylook
-<br><img src="https://img.shields.io/badge/Release-v2.1-blue.svg">
+<br><img src="https://img.shields.io/badge/Release-v2.2-blue.svg">
 <img src="https://img.shields.io/badge/API-REST-green.svg">
 <img src="https://img.shields.io/badge/Protocolos-12-orange.svg">
+<img src="https://img.shields.io/badge/Xray-v26.7-purple.svg">
+<img src="https://img.shields.io/badge/SSLH-443-red.svg">
 </h2>
 
 </p>
@@ -210,6 +212,23 @@ menu
 
 ---
 
+## ⚡ Xray Otimizado (v26.7+)
+
+Configuração limpa, sem marcadores quebrando JSON, com melhorias de performance:
+
+| Recurso | Status |
+|---------|--------|
+| **Sniffing** (HTTP + TLS) | ✅ Ativado |
+| **Log level** | `warning` (menos I/O) |
+| **host field** | `wsSettings.host` (Xray 26+) |
+| **Routing** | CIDR direto (sem geoip.dat) |
+| **Inbounds** | VMess 8443+80, VLess 8443+80, Trojan WS 2083 |
+| **SSLH** | Multiplex na porta 443 |
+
+> ⚠️ WebSocket recebeu aviso de depreciação no Xray 26+. Recomenda-se migrar para XHTTP futuramente.
+
+---
+
 ## 🔧 Troubleshooting
 
 ### Fix SSLH Error
@@ -267,5 +286,5 @@ pm2 restart api-ssl --update-env
 <p align="center">
 <img height=21 src="https://komarev.com/ghpvc/?username=faizalsalato">
 <br>
-<sub>v2.1 • 12 protocolos • API REST • OpenVPN UDP53</sub>
+<sub>v2.2 • 12 protocolos • API REST • Xray 26.7 otimizado • SSLH 443 • OpenVPN UDP53</sub>
 </p>
