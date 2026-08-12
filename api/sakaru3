@@ -13,6 +13,9 @@ UUID=$(cat /proc/sys/kernel/random/uuid)
 EXP=$(date -d "$dias days" +"%Y-%m-%d")
 CREATED=$(date -d "0 days" +"%Y-%m-%d")
 
+# Check duplicate
+if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then echo "ERRO|usuario $login ja existe"; exit 3; fi
+
 python3 -c "
 import json
 d = json.load(open('/etc/xray/config.json'))
@@ -26,7 +29,7 @@ systemctl restart xray 2>/dev/null || true
 link_tls="vless://${UUID}@${DOMAIN}:8443?type=ws&encryption=none&security=tls&host=${DOMAIN}&path=/vless&allowInsecure=1&sni=${DOMAIN}#VLESS_${login}"
 link_notls="vless://${UUID}@${DOMAIN}:80?type=ws&encryption=none&security=none&host=${DOMAIN}&path=/vless#VLESS_${login}"
 
-mkdir -p /home/vps/public_html
+mkdir -p /home/vps/public_html; chmod 755 /home/vps/ 2>/dev/null; chmod 755 /home/vps/public_html/ 2>/dev/null
 cat > /home/vps/public_html/vless-$login.txt << END
 ====================================================================
               XRAYS VLESS WS - blaylook VPN

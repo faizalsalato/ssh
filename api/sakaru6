@@ -12,6 +12,9 @@ DOMAIN=$(cat /etc/xray/domain 2>/dev/null || echo "de.checker.mobi")
 EXP=$(date -d "$dias days" +"%Y-%m-%d")
 CREATED=$(date -d "0 days" +"%Y-%m-%d")
 
+# Check duplicate
+if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then echo "ERRO|usuario $login ja existe"; exit 3; fi
+
 python3 -c "
 import json
 d = json.load(open('/etc/xray/config.json'))
@@ -25,7 +28,7 @@ systemctl restart xray 2>/dev/null || true
 b64=$(echo -n "chacha20-ietf-poly1305:$pass@$DOMAIN:654" | base64 -w0)
 link="ss://${b64}#SS_${login}"
 
-mkdir -p /home/vps/public_html
+mkdir -p /home/vps/public_html; chmod 755 /home/vps/ 2>/dev/null; chmod 755 /home/vps/public_html/ 2>/dev/null
 cat > /home/vps/public_html/ss-$login.txt << END
 ====================================================================
               SHADOWSOCKS TLS - blaylook VPN

@@ -14,6 +14,9 @@ UUID=$(cat /proc/sys/kernel/random/uuid)
 EXP=$(date -d "$dias days" +"%Y-%m-%d")
 CREATED=$(date -d "0 days" +"%Y-%m-%d")
 
+# Check duplicate
+if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then echo "ERRO|usuario $login ja existe"; exit 3; fi
+
 python3 -c "
 import json
 d = json.load(open('/etc/xray/config.json'))
