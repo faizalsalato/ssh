@@ -40,18 +40,18 @@ function run(script, args, res, map) {
 // ──────────────────────────────────────────────
 const PROTOCOLS = {
   // name, sakaru#, args (l=login, p=pass, d=dias), response mapper
-  ssh:    { script: 'sakaru',  args: 'lpd', map: p => ({ status:p[0], conta:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
-  vmess:  { script: 'sakaru2', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link_tls:p[6], link_notls:p[7] }) },
-  vless:  { script: 'sakaru3', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link_tls:p[6], link_notls:p[7] }) },
-  trojan: { script: 'sakaru4', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], password:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link:p[6] }) },
-  trgo:   { script: 'sakaru5', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], password:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link:p[6] }) },
-  ss:     { script: 'sakaru6', args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link:p[6] }) },
-  ssr:    { script: 'sakaru7', args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
-  wg:     { script: 'sakaru8', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], expiracao:p[2], ip:p[3], dominio:p[4], client_ip:p[5], config:p[6] }) },
-  l2tp:   { script: 'sakaru9', args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4] }) },
-  pptp:   { script: 'sakaru10',args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4] }) },
-  sstp:   { script: 'sakaru11',args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
-  grpc:   { script: 'sakaru12',args: 'ld',  map: p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
+  ssh:    { script: '/usr/bin/sakaru',  args: 'lpd', map: p => ({ status:p[0], conta:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
+  vmess:  { script: '/usr/bin/sakaru2', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link_tls:p[6], link_notls:p[7] }) },
+  vless:  { script: '/usr/bin/sakaru3', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link_tls:p[6], link_notls:p[7] }) },
+  trojan: { script: '/usr/bin/sakaru4', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], password:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link:p[6] }) },
+  trgo:   { script: '/usr/bin/sakaru5', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], password:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link:p[6] }) },
+  ss:     { script: '/usr/bin/sakaru6', args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5], link:p[6] }) },
+  ssr:    { script: '/usr/bin/sakaru7', args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
+  wg:     { script: '/usr/bin/sakaru8', args: 'ld',  map: p => ({ status:p[0], usuario:p[1], expiracao:p[2], ip:p[3], dominio:p[4], client_ip:p[5], config:p[6] }) },
+  l2tp:   { script: '/usr/bin/sakaru9', args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4] }) },
+  pptp:   { script: '/usr/bin/sakaru10',args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4] }) },
+  sstp:   { script: '/usr/bin/sakaru11',args: 'lpd', map: p => ({ status:p[0], usuario:p[1], senha:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
+  grpc:   { script: '/usr/bin/sakaru12',args: 'ld',  map: p => ({ status:p[0], usuario:p[1], uuid:p[2], expiracao:p[3], ip:p[4], dominio:p[5] }) },
 };
 
 // ──────────────────────────────────────────────
