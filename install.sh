@@ -1,7 +1,15 @@
 #!/bin/bash
 # ============================================================
-# install.sh - Instalador Guiado Auto Script VPN v2.1
+# install.sh - Instalador Guiado Auto Script VPN v2.2
 # ============================================================
+# Melhorias v2.2:
+#   - OpenVPN 2.7.6 compilado com O3+native+LTO
+#   - Xray config JSON limpo + sniffing ativo
+#   - Download SSL porta 8445 (HTTPS)
+#   - API REST 12 protocolos com PM2
+#   - Menu com loop infinito + log auditoria
+#   - Anti-duplicata na criação de contas
+#   - Config .txt gerado automaticamente
 # Melhorias v2.1:
 #   - Validação de sistema antes de instalar
 #   - Trap de cleanup em caso de Ctrl+C/erro
@@ -10,7 +18,6 @@
 #   - Modo --dry-run para teste
 #   - Retry exponencial com backoff
 #   - Feedback visual melhorado
-#   - Helper install_if_asked para fluxo correto
 # ============================================================
 # Uso:
 #   bash install.sh           # Modo interativo
