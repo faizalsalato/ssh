@@ -235,18 +235,25 @@ dh ${dir}/dh2048.pem
 plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
 verify-client-cert none
 username-as-common-name
+auth SHA256
+cipher AES-128-GCM
+data-ciphers AES-128-GCM:AES-256-GCM:CHACHA20-POLY1305
 server 10.9.0.0 255.255.255.0
-ifconfig-pool-persist ${dir}/ipp.txt
-push "redirect-gateway def1 bypass-dhcp"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-keepalive 5 30
-comp-lzo
+push "dhcp-option DNS 1.0.0.1"
+push "dhcp-option DNS 1.1.1.1"
+push "redirect-gateway def1"
+keepalive 10 60
+topology subnet
+fast-io
+sndbuf 524288
+rcvbuf 524288
 persist-key
 persist-tun
+tls-server
+tls-version-min 1.2
 status ${dir}/openvpn-udp53.log
 verb 3
-explicit-exit-notify
+explicit-exit-notify 1
 EOF
     log "Config do servidor criada"
 }
@@ -266,12 +273,16 @@ dev tun
 proto udp
 remote ${ip} 53
 resolv-retry infinite
-route-method exe
 nobind
 persist-key
 persist-tun
+remote-cert-tls server
 auth-user-pass
-comp-lzo
+float
+reneg-sec 0
+fast-io
+sndbuf 524288
+rcvbuf 524288
 verb 3
 <ca>
 ${ca}
