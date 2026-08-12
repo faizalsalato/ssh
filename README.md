@@ -142,7 +142,7 @@ bash <(curl -sL https://raw.githubusercontent.com/faizalsalato/ssh/main/udp53.sh
 
 ### Download do cliente
 ```
-http://SEU_IP:89/udp53.ovpn
+http://SEU_IP:8445/udp53.ovpn
 ```
 
 ---
