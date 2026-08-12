@@ -9,18 +9,7 @@
       "port": 8443,
       "protocol": "vmess",
       "settings": {
-        "clients": [
-          {
-            "id": "cbaca25d-3ce0-47d1-8964-87776a1d892f",
-            "alterId": 0,
-            "email": "apitest99"
-          },
-          {
-            "id": "775f27b0-13e4-449f-a17f-9c8ca1e34dbe",
-            "alterId": 0,
-            "email": "fasttest"
-          }
-        ]
+        "clients": []
       },
       "streamSettings": {
         "network": "ws",
@@ -51,18 +40,7 @@
       "port": 80,
       "protocol": "vmess",
       "settings": {
-        "clients": [
-          {
-            "id": "cbaca25d-3ce0-47d1-8964-87776a1d892f",
-            "alterId": 0,
-            "email": "apitest99"
-          },
-          {
-            "id": "775f27b0-13e4-449f-a17f-9c8ca1e34dbe",
-            "alterId": 0,
-            "email": "fasttest"
-          }
-        ]
+        "clients": []
       },
       "streamSettings": {
         "network": "ws",
@@ -85,12 +63,7 @@
       "port": 8443,
       "protocol": "vless",
       "settings": {
-        "clients": [
-          {
-            "id": "0f0af755-5776-4c81-86ec-15ffc7d4376d",
-            "email": "fastvl"
-          }
-        ],
+        "clients": [],
         "decryption": "none"
       },
       "streamSettings": {
@@ -122,12 +95,7 @@
       "port": 80,
       "protocol": "vless",
       "settings": {
-        "clients": [
-          {
-            "id": "0f0af755-5776-4c81-86ec-15ffc7d4376d",
-            "email": "fastvl"
-          }
-        ],
+        "clients": [],
         "decryption": "none"
       },
       "streamSettings": {
@@ -151,12 +119,7 @@
       "port": 2083,
       "protocol": "trojan",
       "settings": {
-        "clients": [
-          {
-            "password": "9022c2ab-8c37-465e-8b61-11e21dcb0fc5",
-            "email": "fasttr"
-          }
-        ]
+        "clients": []
       },
       "streamSettings": {
         "network": "ws",
@@ -182,6 +145,46 @@
         ]
       },
       "tag": "trojan-ws"
+    },
+    {
+      "port": 654,
+      "protocol": "shadowsocks",
+      "settings": {
+        "clients": [
+          {
+            "method": "chacha20-ietf-poly1305",
+            "password": "pass123",
+            "email": "sstest"
+          },
+          {
+            "method": "chacha20-ietf-poly1305",
+            "password": "pass123",
+            "email": "ssapi"
+          }
+        ],
+        "method": "chacha20-ietf-poly1305",
+        "network": "tcp,udp"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [
+            {
+              "certificateFile": "/etc/xray/xray.crt",
+              "keyFile": "/etc/xray/xray.key"
+            }
+          ]
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "tag": "ss-tls-654"
     }
   ],
   "outbounds": [
