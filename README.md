@@ -3,11 +3,12 @@
 <h2 align="center">
 🚀 Auto Script Install All VPN Service
 <br>Mod By blaylook
-<br><img src="https://img.shields.io/badge/Release-v2.2-blue.svg">
+<br><img src="https://img.shields.io/badge/Release-v2.3-blue.svg">
 <img src="https://img.shields.io/badge/API-REST-green.svg">
 <img src="https://img.shields.io/badge/Protocolos-12-orange.svg">
 <img src="https://img.shields.io/badge/Xray-v26.7-purple.svg">
-<img src="https://img.shields.io/badge/SSLH-443-red.svg">
+<img src="https://img.shields.io/badge/OpenVPN-v2.7.6-red.svg">
+<img src="https://img.shields.io/badge/Ubuntu-22%2F24-brightgreen.svg">
 </h2>
 
 </p>
@@ -286,5 +287,5 @@ pm2 restart api-ssl --update-env
 <p align="center">
 <img height=21 src="https://komarev.com/ghpvc/?username=faizalsalato">
 <br>
-<sub>v2.2 • 12 protocolos • API REST • Xray 26.7 otimizado • SSLH 443 • OpenVPN UDP53</sub>
+<sub>v2.3 • 12 protocolos • OpenVPN 2.7.6 • Xray 26.7 • Ubuntu 18-24</sub>
 </p>
