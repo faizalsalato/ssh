@@ -1,5 +1,5 @@
 #!/bin/bash
-# sakaru2 v2 - API wrapper for Vmess (Xray 26+ JSON)
+# sakaru2 v2.1 - Vmess + salvar config no public_html
 export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
 set -euo pipefail
 
@@ -12,8 +12,8 @@ IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12
 DOMAIN=$(cat /etc/xray/domain 2>/dev/null || echo "de.checker.mobi")
 UUID=$(cat /proc/sys/kernel/random/uuid)
 EXP=$(date -d "$dias days" +"%Y-%m-%d")
+CREATED=$(date -d "0 days" +"%Y-%m-%d")
 
-# Insert into JSON using python
 python3 -c "
 import json
 d = json.load(open('/etc/xray/config.json'))
@@ -22,16 +22,40 @@ for i in d.get('inbounds',[]):
         i['settings']['clients'].append({'id':'$UUID','alterId':0,'email':'$login'})
 json.dump(d, open('/etc/xray/config.json','w'), indent=2)
 " 2>/dev/null
-
 systemctl restart xray 2>/dev/null || true
 
 tls_port=8443
 nontls_port=80
-
 tls_json='{"v":"2","ps":"VMESS_'$login'","add":"'$DOMAIN'","port":"'$tls_port'","id":"'$UUID'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'$DOMAIN'","tls":"tls"}'
 notls_json='{"v":"2","ps":"VMESS_'$login'","add":"'$DOMAIN'","port":"'$nontls_port'","id":"'$UUID'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'$DOMAIN'","tls":"none"}'
-
 link_tls="vmess://$(echo -n "$tls_json" | base64 -w0)"
 link_notls="vmess://$(echo -n "$notls_json" | base64 -w0)"
+
+# Salvar config no public_html
+mkdir -p /home/vps/public_html; chmod 755 /home/vps/ 2>/dev/null; chmod 755 /home/vps/public_html/ 2>/dev/null
+cat > /home/vps/public_html/vmess-$login.txt << END
+====================================================================
+              XRAYS VMESS WS - blaylook VPN
+====================================================================
+Remarks     : ${login}
+Domain      : ${DOMAIN}
+IP          : ${IP}
+Port TLS    : ${tls_port}
+Port NoTLS  : ${nontls_port}
+UUID        : ${UUID}
+Alter ID    : 0
+Network     : ws
+Path        : /vmess
+TLS         : tls
+Created     : ${CREATED}
+Expired     : ${EXP}
+====================================================================
+Link TLS    : ${link_tls}
+Link NoTLS  : ${link_notls}
+====================================================================
+Config URL  : https://${IP}:8445/vmess-${login}.txt
+====================================================================
+END
+chown www-data:www-data /home/vps/public_html/vmess-$login.txt 2>/dev/null || true
 
 echo "SUCESSO|$login|$UUID|$EXP|$IP|$DOMAIN|$link_tls|$link_notls"

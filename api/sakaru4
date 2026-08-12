@@ -1,8 +1,7 @@
 #!/bin/bash
-# sakaru4 v2 - API wrapper for Trojan (Xray 26+ JSON)
+# sakaru4 v2.1 - Trojan + salvar config
 export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
 set -euo pipefail
-
 login="${1:-}"; dias="${2:-}"
 [[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru4 <login> <dias>"; exit 1; }
 [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
@@ -12,6 +11,7 @@ IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12
 DOMAIN=$(cat /etc/xray/domain 2>/dev/null || echo "de.checker.mobi")
 PASS=$(cat /proc/sys/kernel/random/uuid)
 EXP=$(date -d "$dias days" +"%Y-%m-%d")
+CREATED=$(date -d "0 days" +"%Y-%m-%d")
 
 python3 -c "
 import json
@@ -21,8 +21,31 @@ for i in d.get('inbounds',[]):
         i['settings']['clients'].append({'password':'$PASS','email':'$login'})
 json.dump(d, open('/etc/xray/config.json','w'), indent=2)
 " 2>/dev/null
-
 systemctl restart xray 2>/dev/null || true
 
 link="trojan://${PASS}@${DOMAIN}:2083?type=ws&security=tls&host=${DOMAIN}&path=/trojan&allowInsecure=1&sni=${DOMAIN}#TROJAN_${login}"
+
+mkdir -p /home/vps/public_html
+cat > /home/vps/public_html/trojan-$login.txt << END
+====================================================================
+              XRAYS TROJAN WS - blaylook VPN
+====================================================================
+Remarks     : ${login}
+Domain      : ${DOMAIN}
+IP          : ${IP}
+Port        : 2083
+Password    : ${PASS}
+Network     : ws
+Path        : /trojan
+TLS         : tls
+Created     : ${CREATED}
+Expired     : ${EXP}
+====================================================================
+Link        : ${link}
+====================================================================
+Config URL  : https://${IP}:8445/trojan-${login}.txt
+====================================================================
+END
+chown www-data:www-data /home/vps/public_html/trojan-$login.txt 2>/dev/null || true
+
 echo "SUCESSO|$login|$PASS|$EXP|$IP|$DOMAIN|$link"

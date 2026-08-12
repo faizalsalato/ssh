@@ -1,8 +1,7 @@
 #!/bin/bash
-# sakaru3 v2 - API wrapper for Vless (Xray 26+ JSON)
+# sakaru3 v2.1 - Vless + salvar config
 export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
 set -euo pipefail
-
 login="${1:-}"; dias="${2:-}"
 [[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru3 <login> <dias>"; exit 1; }
 [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
@@ -12,6 +11,7 @@ IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12
 DOMAIN=$(cat /etc/xray/domain 2>/dev/null || echo "de.checker.mobi")
 UUID=$(cat /proc/sys/kernel/random/uuid)
 EXP=$(date -d "$dias days" +"%Y-%m-%d")
+CREATED=$(date -d "0 days" +"%Y-%m-%d")
 
 python3 -c "
 import json
@@ -21,10 +21,34 @@ for i in d.get('inbounds',[]):
         i['settings']['clients'].append({'id':'$UUID','email':'$login'})
 json.dump(d, open('/etc/xray/config.json','w'), indent=2)
 " 2>/dev/null
-
 systemctl restart xray 2>/dev/null || true
 
 link_tls="vless://${UUID}@${DOMAIN}:8443?type=ws&encryption=none&security=tls&host=${DOMAIN}&path=/vless&allowInsecure=1&sni=${DOMAIN}#VLESS_${login}"
 link_notls="vless://${UUID}@${DOMAIN}:80?type=ws&encryption=none&security=none&host=${DOMAIN}&path=/vless#VLESS_${login}"
+
+mkdir -p /home/vps/public_html
+cat > /home/vps/public_html/vless-$login.txt << END
+====================================================================
+              XRAYS VLESS WS - blaylook VPN
+====================================================================
+Remarks     : ${login}
+Domain      : ${DOMAIN}
+IP          : ${IP}
+Port TLS    : 8443
+Port NoTLS  : 80
+UUID        : ${UUID}
+Encryption  : none
+Network     : ws
+Path        : /vless
+Created     : ${CREATED}
+Expired     : ${EXP}
+====================================================================
+Link TLS    : ${link_tls}
+Link NoTLS  : ${link_notls}
+====================================================================
+Config URL  : https://${IP}:8445/vless-${login}.txt
+====================================================================
+END
+chown www-data:www-data /home/vps/public_html/vless-$login.txt 2>/dev/null || true
 
 echo "SUCESSO|$login|$UUID|$EXP|$IP|$DOMAIN|$link_tls|$link_notls"
