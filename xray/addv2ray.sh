@@ -87,7 +87,7 @@ vmess_base642=$( base64 -w 0 <<< $vmess_json2)
 xrayv2ray1="vmess://$(base64 -w 0 /etc/xray/vmess-$user-tls.json)"
 xrayv2ray2="vmess://$(base64 -w 0 /etc/xray/vmess-$user-nontls.json)"
 systemctl restart xray.service
-service cron restart
+systemctl restart cron
 
 cat > /home/vps/public_html/vmess-$user.txt <<-END
 

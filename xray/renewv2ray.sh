@@ -56,7 +56,7 @@ exp4=`date -d "$exp3 days" +"%Y-%m-%d"`
 sed -i "s/### $user $exp/### $user $exp4/g" /etc/xray/config.json
 sed -i "s/### $user $exp/### $user $exp4/g" /etc/xray/config.json
 systemctl restart xray.service
-service cron restart
+systemctl restart cron
 clear
 echo ""
 echo "==============================="

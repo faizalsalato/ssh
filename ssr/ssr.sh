@@ -89,7 +89,7 @@ if [[ $ver == '7' ]]; then
 yum -y install python
 elif [[ $ver == '8' ]]; then
 yum install -y python2
-alternatives --set python /usr/bin/python2
+alternatives --set python3 /usr/bin/python2
 fi
 else
 apt-get install -y python
@@ -140,10 +140,10 @@ chmod +x ${jq_file}
 Installation_dependency(){
 if [[ ${OS} == "centos" ]]; then
 		Centos_yum
-		service crond restart
+		systemctl restart cron
 	else
 		Debian_apt
-		/etc/init.d/cron restart
+		systemctl restart cron
 	fi
 }
 Start_SSR(){

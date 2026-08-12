@@ -60,7 +60,7 @@ rm -f "/home/vps/public_html/$user.conf"
 
 # restart wireguard to apply changes
 systemctl restart "wg-quick@$SERVER_WG_NIC"
-service cron restart
+systemctl restart cron
 clear
 echo ""
 echo "============================="

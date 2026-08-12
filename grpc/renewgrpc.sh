@@ -61,7 +61,7 @@ sed -i "s/### $user $exp/### $user $exp4/g" /etc/xray/vmessgrpc.json
 sed -i "s/### $user $exp/### $user $exp4/g" /etc/xray/vlessgrpc.json
 systemctl restart vmess-grpc.service
 systemctl restart vless-grpc.service
-service cron restart
+systemctl restart cron
 clear
 echo ""
 echo "==============================="

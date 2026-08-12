@@ -55,7 +55,7 @@ sed -i '/#xray-vless-nontls$/a\#### '"$user $exp"'\
 xrayvless1="vless://${uuid}@${domain}:$tls?type=ws&encryption=none&security=tls&host=${domain}&path=/vless&allowInsecure=1&sni=${sni}#XRAY_VLESS_${user}"
 xrayvless2="vless://${uuid}@${domain}:$nontls?type=ws&encryption=none&security=none&host=${domain}&path=/vless#XRAY_VLESS_${user}"
 systemctl restart xray.service
-service cron restart
+systemctl restart cron
 
 cat > /home/vps/public_html/vless-$user.txt <<-END
 

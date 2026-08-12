@@ -66,7 +66,7 @@ tmp2=$(echo -n "$IP:${ssr_port}:${ssr_protocol}:${ssr_method}:${SSRobfs}:${tmp1}
 ssr_link="ssr://${tmp2}"
 /etc/init.d/ssrmu restart
 systemctl restart ssrmu
-service cron restart
+systemctl restart cron
 IP=$(wget -qO- ifconfig.co);
 clear
 echo -e ""

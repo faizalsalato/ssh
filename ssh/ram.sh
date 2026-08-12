@@ -43,7 +43,7 @@
 #
 # All interpreted programs where the interpreter is started
 # by the shell or with env, will be merged to the interpreter
-# (as that's what's given to exec). For e.g. all python programs
+# (as that's what's given to exec). For e.g. all python3 programs
 # starting with "#!/usr/bin/env python" will be grouped under python.
 # You can change this by using the full command line but that will
 # have the undesirable affect of splitting up programs started with

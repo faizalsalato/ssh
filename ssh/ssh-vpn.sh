@@ -96,7 +96,7 @@ apt -y install net-tools
 
 # Install Requirements Tools
 apt install ruby -y
-apt install python -y
+apt install python3 -y
 apt install make -y
 apt install cmake -y
 apt install coreutils -y
@@ -576,7 +576,7 @@ cd
 chown -R www-data:www-data /home/vps/public_html
 /etc/init.d/nginx restart
 /etc/init.d/openvpn restart
-/etc/init.d/cron restart
+systemctl restart cron
 /etc/init.d/ssh restart
 /etc/init.d/dropbear restart
 /etc/init.d/fail2ban restart

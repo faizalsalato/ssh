@@ -52,7 +52,7 @@ systemctl restart fb-vmess-grpc.service
 systemctl restart fb-vless-grpc.service
 systemctl restart vmess-grpc.service
 systemctl restart vless-grpc.service
-service cron restart
+systemctl restart cron
 clear
 echo -e "================================="
 echo -e "            XRAY GRPC            " 

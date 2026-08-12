@@ -43,7 +43,7 @@ systemctl restart trojan-go
 /etc/init.d/stunnel4 restart
 /etc/init.d/openvpn restart
 /etc/init.d/fail2ban restart
-/etc/init.d/cron restart
+systemctl restart cron
 /etc/init.d/nginx restart
 /etc/init.d/squid restart
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7100 --max-clients 1000

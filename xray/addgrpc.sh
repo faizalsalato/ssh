@@ -49,7 +49,7 @@ vmesslink1="vmess://$(base64 -w 0 /etc/xray/$user-tls.json)"
 vlesslink1="vless://${uuid}@${domain}:${vl}?mode=gun&security=tls&encryption=none&type=grpc&serviceName=GunService&sni=${domain}#$user"
 systemctl restart sl-vmess-grpc.service
 systemctl restart sl-vless-grpc.service
-service cron restart
+systemctl restart cron
 clear
 echo -e "================================="
 echo -e "            XRAY GRPC            " 

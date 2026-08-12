@@ -49,7 +49,7 @@ exp=$(grep -E "^### " "/etc/trojan-go/akun.conf" | cut -d ' ' -f 3 | sed -n "${C
 sed -i "/^### $user $exp/d" /etc/trojan-go/akun.conf
 sed -i '/^,"'"$user"'"$/d' /etc/trojan-go/config.json
 systemctl restart trojan-go.service
-service cron restart
+systemctl restart cron
 clear
 echo ""
 echo "============================"

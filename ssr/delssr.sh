@@ -54,7 +54,7 @@ sed -i "/^### $CLIENT_NAME/d" "/usr/local/shadowsocksr/akun.conf"
 cd /usr/local/shadowsocksr
 match_del=$(python mujson_mgr.py -d -u "${user}"|grep -w "delete user")
 cd
-service cron restart
+systemctl restart cron
 /etc/init.d/ssrmu restart
 clear
 echo ""

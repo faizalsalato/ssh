@@ -710,7 +710,7 @@ $linkss22
 
 END
 
-service cron restart
+systemctl restart cron
 clear
 echo -e ""
 echo -e "========-SHADOWSOCKS libev-========"

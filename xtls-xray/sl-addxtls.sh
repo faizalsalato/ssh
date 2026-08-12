@@ -48,7 +48,7 @@ slvmesswslink="vmess://${uuid}@${domain}:7869/?path=/vmess/&security=xtls&encryp
 
 systemctl restart xtls-xray.service
 service xtls-xray restart
-service cron restart
+systemctl restart cron
 clear
 echo -e "================================="
 echo -e "           XRAY XTLS ONLY        " 

@@ -52,7 +52,7 @@ exp=$(grep -E "^### " "/etc/shadowsocks-libev/akun.conf" | cut -d ' ' -f 3 | sed
 # remove [Peer] block matching $CLIENT_NAME
 sed -i "/^### $user $exp/,/^port_http/d" "/etc/shadowsocks-libev/akun.conf"
 # remove generated client file
-service cron restart
+systemctl restart cron
 systemctl disable shadowsocks-libev-server@$user-tls.service
 systemctl disable shadowsocks-libev-server@$user-http.service
 systemctl stop shadowsocks-libev-server@$user-tls.service

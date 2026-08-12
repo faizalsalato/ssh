@@ -142,7 +142,7 @@ linkss2="ss://${tmp2}?plugin=obfs-local;obfs=http;obfs-host=bing.com"
 echo -e "### $user $exp
 port_tls $tls
 port_http $http">>"/etc/shadowsocks-libev/akun.conf"
-service cron restart
+systemctl restart cron
 clear
 echo -e ""
 echo -e "======-SHADOWSOCKS-======"

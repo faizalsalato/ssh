@@ -50,7 +50,7 @@ sed -i '/#xray-trojan$/a\#&# '"$user $exp"'\
 },{"password": "'""$user""'","email": "'""$user""'"' /etc/xray/config.json
 systemctl restart xray.service
 trojanlink="trojan://${user}@${domain}:${tr}"
-service cron restart
+systemctl restart cron
 clear
 echo -e ""
 echo -e "======-XRAYS/TROJAN-======"

@@ -48,7 +48,7 @@ exp=$(grep -E "^#&# " "/etc/xray/config.json" | cut -d ' ' -f 3 | sed -n "${CLIE
 sed -i "/^#&# $user $exp/,/^},{/d" /etc/xray/config.json
 sed -i "/^#&# $user $exp/,/^},{/d" /etc/xray/config.json
 systemctl restart xray.service
-service cron restart
+systemctl restart cron
 clear
 echo ""
 echo "================================"
