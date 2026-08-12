@@ -246,18 +246,22 @@ data-ciphers AES-128-GCM:AES-256-GCM:CHACHA20-POLY1305
 server 10.9.0.0 255.255.255.0
 push "dhcp-option DNS 1.0.0.1"
 push "dhcp-option DNS 1.1.1.1"
+tun-mtu 1500
+mssfix 1350
+push "sndbuf 1048576"
+push "rcvbuf 1048576"
 push "redirect-gateway def1"
 keepalive 10 60
 topology subnet
 fast-io
-sndbuf 524288
-rcvbuf 524288
+sndbuf 1048576
+rcvbuf 1048576
 persist-key
 persist-tun
 tls-server
 tls-version-min 1.2
 status ${dir}/openvpn-udp53.log
-verb 3
+verb 1
 explicit-exit-notify 1
 EOF
     log "Config do servidor criada"
@@ -288,9 +292,9 @@ auth-user-pass
 float
 reneg-sec 0
 fast-io
-sndbuf 524288
-rcvbuf 524288
-verb 3
+sndbuf 1048576
+rcvbuf 1048576
+verb 1
 <ca>
 ${ca}
 </ca>
