@@ -1,0 +1,214 @@
+{
+  "log": {
+    "access": "/var/log/xray/access.log",
+    "error": "/var/log/xray/error.log",
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "port": 8443,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "cbaca25d-3ce0-47d1-8964-87776a1d892f",
+            "alterId": 0,
+            "email": "apitest99"
+          },
+          {
+            "id": "775f27b0-13e4-449f-a17f-9c8ca1e34dbe",
+            "alterId": 0,
+            "email": "fasttest"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [
+            {
+              "certificateFile": "/etc/xray/xray.crt",
+              "keyFile": "/etc/xray/xray.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/vmess",
+          "host": "de.checker.mobi"
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "tag": "vmess-tls"
+    },
+    {
+      "port": 80,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "cbaca25d-3ce0-47d1-8964-87776a1d892f",
+            "alterId": 0,
+            "email": "apitest99"
+          },
+          {
+            "id": "775f27b0-13e4-449f-a17f-9c8ca1e34dbe",
+            "alterId": 0,
+            "email": "fasttest"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "path": "/vmess",
+          "host": "de.checker.mobi"
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "tag": "vmess-nontls"
+    },
+    {
+      "port": 8443,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "0f0af755-5776-4c81-86ec-15ffc7d4376d",
+            "email": "fastvl"
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [
+            {
+              "certificateFile": "/etc/xray/xray.crt",
+              "keyFile": "/etc/xray/xray.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/vless",
+          "host": "de.checker.mobi"
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "tag": "vless-tls"
+    },
+    {
+      "port": 80,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "0f0af755-5776-4c81-86ec-15ffc7d4376d",
+            "email": "fastvl"
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "path": "/vless",
+          "host": "de.checker.mobi"
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "tag": "vless-nontls"
+    },
+    {
+      "port": 2083,
+      "protocol": "trojan",
+      "settings": {
+        "clients": [
+          {
+            "password": "9022c2ab-8c37-465e-8b61-11e21dcb0fc5",
+            "email": "fasttr"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "certificates": [
+            {
+              "certificateFile": "/etc/xray/xray.crt",
+              "keyFile": "/etc/xray/xray.key"
+            }
+          ]
+        },
+        "wsSettings": {
+          "path": "/trojan",
+          "host": "de.checker.mobi"
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "tag": "trojan-ws"
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {},
+      "tag": "direct"
+    },
+    {
+      "protocol": "blackhole",
+      "settings": {},
+      "tag": "blocked"
+    }
+  ],
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "type": "field",
+        "ip": [
+          "10.0.0.0/8",
+          "172.16.0.0/12",
+          "192.168.0.0/16",
+          "127.0.0.0/8"
+        ],
+        "outboundTag": "blocked"
+      }
+    ]
+  }
+}

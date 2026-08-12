@@ -1,54 +1,37 @@
 #!/bin/bash
-# sakaru2 - API wrapper for Vmess account creation (non-interactive)
-# Usage: sakaru2 <login> <dias>
-# Output: SUCESSO|usuario|uuid|expira|ip|dominio|linkTls|linkNoTls
+# sakaru2 v2 - API wrapper for Vmess (Xray 26+ JSON)
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
 set -euo pipefail
 
-login="${1:-}"
-dias="${2:-}"
+login="${1:-}"; dias="${2:-}"
+[[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru2 <login> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
 
-if [[ -z "$login" || -z "$dias" ]]; then
-    echo "USO: sakaru2 <login> <dias>"
-    exit 1
-fi
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+DOMAIN=$(cat /etc/xray/domain 2>/dev/null || echo "de.checker.mobi")
+UUID=$(cat /proc/sys/kernel/random/uuid)
+EXP=$(date -d "$dias days" +"%Y-%m-%d")
 
-if [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]]; then
-    echo "ERRO: login invalido"
-    exit 2
-fi
-if ! [[ "$dias" =~ ^[0-9]+$ ]] || [ "$dias" -lt 1 ] || [ "$dias" -gt 365 ]; then
-    echo "ERRO: dias deve ser entre 1-365"
-    exit 2
-fi
+# Insert into JSON using python
+python3 -c "
+import json
+d = json.load(open('/etc/xray/config.json'))
+for i in d.get('inbounds',[]):
+    if i.get('protocol')=='vmess' and 'clients' in i.get('settings',{}):
+        i['settings']['clients'].append({'id':'$UUID','alterId':0,'email':'$login'})
+json.dump(d, open('/etc/xray/config.json','w'), indent=2)
+" 2>/dev/null
 
-domain="${DOMAIN:-$(cat /etc/xray/domain 2>/dev/null || hostname -f 2>/dev/null || echo 'vps')}"
-IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo '127.0.0.1')
+systemctl restart xray 2>/dev/null || true
 
-# Check if user exists in xray config
-if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then
-    echo "ERRO: usuario '$login' ja existe no Xray"
-    exit 3
-fi
+tls_port=8443
+nontls_port=80
 
-# Read ports from install log
-tls=$(grep -w "Vmess TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "443")
-nontls=$(grep -w "Vmess None TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "80")
+tls_json='{"v":"2","ps":"VMESS_'$login'","add":"'$DOMAIN'","port":"'$tls_port'","id":"'$UUID'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'$DOMAIN'","tls":"tls"}'
+notls_json='{"v":"2","ps":"VMESS_'$login'","add":"'$DOMAIN'","port":"'$nontls_port'","id":"'$UUID'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'$DOMAIN'","tls":"none"}'
 
-uuid=$(cat /proc/sys/kernel/random/uuid)
-exp_date=$(date -d "$dias days" +"%Y-%m-%d")
+link_tls="vmess://$(echo -n "$tls_json" | base64 -w0)"
+link_notls="vmess://$(echo -n "$notls_json" | base64 -w0)"
 
-# Insert into xray config
-sed -i "/#xray-vmess-tls$/a\### $login $exp_date\n},{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
-sed -i "/#xray-vmess-nontls$/a\### $login $exp_date\n},{\"id\": \"$uuid\",\"alterId\": 0,\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
-
-# Generate Vmess links
-vmess_tls_json='{"v":"2","ps":"XRAY_VMESS_'"$login"'","add":"'"$domain"'","port":"'"$tls"'","id":"'"$uuid"'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'"$domain"'","tls":"tls"}'
-vmess_notls_json='{"v":"2","ps":"XRAY_VMESS_'"$login"'","add":"'"$domain"'","port":"'"$nontls"'","id":"'"$uuid"'","aid":"0","net":"ws","path":"/vmess","type":"none","host":"'"$domain"'","tls":"none"}'
-
-link_tls="vmess://$(echo -n "$vmess_tls_json" | base64 -w 0)"
-link_notls="vmess://$(echo -n "$vmess_notls_json" | base64 -w 0)"
-
-# Restart xray
-systemctl restart xray.service 2>/dev/null || true
-
-echo "SUCESSO|$login|$uuid|$exp_date|$IP|$domain|$link_tls|$link_notls"
+echo "SUCESSO|$login|$UUID|$EXP|$IP|$DOMAIN|$link_tls|$link_notls"

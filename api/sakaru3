@@ -1,46 +1,30 @@
 #!/bin/bash
-# sakaru3 - API wrapper for Vless account creation (non-interactive)
-# Usage: sakaru3 <login> <dias>
-# Output: SUCESSO|usuario|uuid|expira|ip|dominio|linkTls|linkNoTls
+# sakaru3 v2 - API wrapper for Vless (Xray 26+ JSON)
+export PATH="/usr/sbin:/usr/bin:/bin:$PATH"
 set -euo pipefail
 
-login="${1:-}"
-dias="${2:-}"
+login="${1:-}"; dias="${2:-}"
+[[ -z "$login" || -z "$dias" ]] && { echo "ERRO|USO: sakaru3 <login> <dias>"; exit 1; }
+[[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]] && { echo "ERRO|login invalido"; exit 2; }
+[[ ! "$dias" =~ ^[0-9]+$ || $dias -lt 1 || $dias -gt 365 ]] && { echo "ERRO|dias invalido"; exit 2; }
 
-if [[ -z "$login" || -z "$dias" ]]; then
-    echo "USO: sakaru3 <login> <dias>"
-    exit 1
-fi
+IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || echo "82.165.182.12")
+DOMAIN=$(cat /etc/xray/domain 2>/dev/null || echo "de.checker.mobi")
+UUID=$(cat /proc/sys/kernel/random/uuid)
+EXP=$(date -d "$dias days" +"%Y-%m-%d")
 
-if [[ ! "$login" =~ ^[a-zA-Z0-9_.-]{3,32}$ ]]; then
-    echo "ERRO: login invalido"
-    exit 2
-fi
-if ! [[ "$dias" =~ ^[0-9]+$ ]] || [ "$dias" -lt 1 ] || [ "$dias" -gt 365 ]; then
-    echo "ERRO: dias deve ser entre 1-365"
-    exit 2
-fi
+python3 -c "
+import json
+d = json.load(open('/etc/xray/config.json'))
+for i in d.get('inbounds',[]):
+    if i.get('protocol')=='vless' and 'clients' in i.get('settings',{}):
+        i['settings']['clients'].append({'id':'$UUID','email':'$login'})
+json.dump(d, open('/etc/xray/config.json','w'), indent=2)
+" 2>/dev/null
 
-domain="${DOMAIN:-$(cat /etc/xray/domain 2>/dev/null || hostname -f 2>/dev/null || echo 'vps')}"
-IP=$(curl -sS --max-time 5 ipv4.icanhazip.com 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo '127.0.0.1')
+systemctl restart xray 2>/dev/null || true
 
-if grep -qw "$login" /etc/xray/config.json 2>/dev/null; then
-    echo "ERRO: usuario '$login' ja existe no Xray"
-    exit 3
-fi
+link_tls="vless://${UUID}@${DOMAIN}:8443?type=ws&encryption=none&security=tls&host=${DOMAIN}&path=/vless&allowInsecure=1&sni=${DOMAIN}#VLESS_${login}"
+link_notls="vless://${UUID}@${DOMAIN}:80?type=ws&encryption=none&security=none&host=${DOMAIN}&path=/vless#VLESS_${login}"
 
-tls=$(grep -w "Vless TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "443")
-nontls=$(grep -w "Vless None TLS" ~/log-install.txt 2>/dev/null | cut -d: -f2 | sed 's/ //g' || echo "80")
-
-uuid=$(cat /proc/sys/kernel/random/uuid)
-exp_date=$(date -d "$dias days" +"%Y-%m-%d")
-
-sed -i "/#xray-vless-tls$/a\\#### $login $exp_date\n},{\"id\": \"$uuid\",\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
-sed -i "/#xray-vless-nontls$/a\\#### $login $exp_date\n},{\"id\": \"$uuid\",\"email\": \"$login\"" /etc/xray/config.json 2>/dev/null
-
-link_tls="vless://${uuid}@${domain}:${tls}?type=ws&encryption=none&security=tls&host=${domain}&path=/vless&allowInsecure=1&sni=${domain}#XRAY_VLESS_${login}"
-link_notls="vless://${uuid}@${domain}:${nontls}?type=ws&encryption=none&security=none&host=${domain}&path=/vless#XRAY_VLESS_${login}"
-
-systemctl restart xray.service 2>/dev/null || true
-
-echo "SUCESSO|$login|$uuid|$exp_date|$IP|$domain|$link_tls|$link_notls"
+echo "SUCESSO|$login|$UUID|$EXP|$IP|$DOMAIN|$link_tls|$link_notls"
