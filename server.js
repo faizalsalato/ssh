@@ -23,11 +23,15 @@ function dias(v) { const n = Number(v); return Number.isInteger(n) && n>0 && n<=
 
 function run(script, args, res, map) {
     execFile(script, args, { timeout: 30000 }, (err, stdout, stderr) => {
+        // Check stdout first - may contain ERRO even on non-zero exit
+        if (stdout) {
+            const p = stdout.trim().split('|');
+            if (p[0] === 'ERRO') return res.status(400).json({ erro: p[1] || 'Erro' });
+            if (p[0] === 'SUCESSO') return res.json(map(p));
+        }
         if (err) return res.status(500).json({ erro: 'Falha: ' + (stderr||err.message) });
-        const p = stdout.trim().split('|');
-        if (p[0] === 'ERRO') return res.status(400).json({ erro: p[1] || 'Erro' });
-        if (p[0] !== 'SUCESSO') return res.status(502).json({ erro: stdout.trim() });
-        res.json(map(p));
+        if (stdout) return res.status(502).json({ erro: stdout.trim() });
+        res.status(500).json({ erro: 'Erro desconhecido' });
     });
 }
 
